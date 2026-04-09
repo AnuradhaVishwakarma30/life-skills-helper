@@ -6,7 +6,7 @@ interface IconRendererProps extends LucideProps {
 }
 
 export const IconRenderer = ({ name, ...props }: IconRendererProps) => {
-  const IconComponent = (Icons as Record<string, React.ComponentType<LucideProps>>)[name];
+  const IconComponent = (Icons as unknown as Record<string, React.ComponentType<LucideProps>>)[name];
   if (!IconComponent) {
     return <Icons.HelpCircle {...props} />;
   }
