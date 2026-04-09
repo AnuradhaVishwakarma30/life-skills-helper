@@ -3,6 +3,8 @@ import { ArrowLeft, ArrowRight, CheckCircle, Volume2, Home, PartyPopper } from '
 import { Task } from '../types';
 import { incrementViews } from '../utils/storage';
 import { IconRenderer } from '../utils/IconRenderer';
+import { HandWashingGame } from './games/HandWashingGame';
+import { RoadCrossingGame } from './games/RoadCrossingGame';
 
 interface TaskGameProps {
   task: Task;
@@ -11,7 +13,17 @@ interface TaskGameProps {
 }
 
 export const TaskGame = ({ task, onBack, onComplete }: TaskGameProps) => {
-  const [currentStep, setCurrentStep] = useState(-1); // -1 = intro
+  if (task.id === 'hand-washing') {
+    return <HandWashingGame onBack={onBack} onComplete={onComplete} />;
+  }
+  if (task.id === 'road-crossing') {
+    return <RoadCrossingGame onBack={onBack} onComplete={onComplete} />;
+  }
+  return <DefaultTaskGame task={task} onBack={onBack} onComplete={onComplete} />;
+};
+
+const DefaultTaskGame = ({ task, onBack, onComplete }: TaskGameProps) => {
+  const [currentStep, setCurrentStep] = useState(-1);
   const [completed, setCompleted] = useState(false);
 
   const speak = useCallback((text: string) => {
@@ -74,7 +86,6 @@ export const TaskGame = ({ task, onBack, onComplete }: TaskGameProps) => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
       <header className="px-6 pt-6 pb-4 flex items-center justify-between">
         <button
           onClick={() => {
@@ -94,7 +105,6 @@ export const TaskGame = ({ task, onBack, onComplete }: TaskGameProps) => {
         </div>
       </header>
 
-      {/* Progress bar */}
       <div className="px-6 mb-2">
         <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
           <div
@@ -107,7 +117,6 @@ export const TaskGame = ({ task, onBack, onComplete }: TaskGameProps) => {
         </p>
       </div>
 
-      {/* Main content */}
       <main className="flex-1 flex flex-col items-center justify-center px-6 py-8">
         {currentStep < 0 ? (
           <div className="text-center animate-scale-in">
@@ -130,7 +139,6 @@ export const TaskGame = ({ task, onBack, onComplete }: TaskGameProps) => {
         ) : null}
       </main>
 
-      {/* Bottom actions */}
       <div className="px-6 pb-8 flex flex-col items-center gap-4">
         <button
           onClick={() => speak(currentStep < 0 ? task.voiceMessage : step?.text || '')}
