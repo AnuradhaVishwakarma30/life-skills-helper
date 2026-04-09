@@ -3,6 +3,8 @@ import { ArrowLeft, ArrowRight, CheckCircle, Volume2, Home, PartyPopper } from '
 import { Task } from '../types';
 import { incrementViews } from '../utils/storage';
 import { IconRenderer } from '../utils/IconRenderer';
+import { HandWashingGame } from './games/HandWashingGame';
+import { RoadCrossingGame } from './games/RoadCrossingGame';
 
 interface TaskGameProps {
   task: Task;
@@ -11,6 +13,14 @@ interface TaskGameProps {
 }
 
 export const TaskGame = ({ task, onBack, onComplete }: TaskGameProps) => {
+  // Use interactive games for specific tasks
+  if (task.id === 'hand-washing') {
+    return <HandWashingGame onBack={onBack} onComplete={onComplete} />;
+  }
+  if (task.id === 'road-crossing') {
+    return <RoadCrossingGame onBack={onBack} onComplete={onComplete} />;
+  }
+
   const [currentStep, setCurrentStep] = useState(-1); // -1 = intro
   const [completed, setCompleted] = useState(false);
 
