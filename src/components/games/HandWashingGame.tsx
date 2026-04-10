@@ -1,38 +1,56 @@
 import { useState, useCallback, useRef } from 'react';
-import { motion, useMotionValue, useTransform } from 'framer-motion';
-import { Droplets, Sparkles, ArrowLeft } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ArrowLeft, Hand } from 'lucide-react';
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import { GoldStarPopup } from './GoldStarPopup';
+import { incrementViews } from '../../utils/storage';
 
 interface HandWashingGameProps {
   onBack: () => void;
   onComplete: () => void;
 }
 
-// Simple bubble component
-const Bubble = ({ delay, x }: { delay: number; x: number }) => (
-  <motion.div
-    className="absolute w-4 h-4 rounded-full bg-blue-200/70 border border-blue-300/50"
-    style={{ left: x, bottom: 0 }}
-    initial={{ opacity: 0, y: 0, scale: 0 }}
-    animate={{
-      opacity: [0, 0.8, 0],
-      y: -120,
-      scale: [0, 1.2, 0.6],
-    }}
-    transition={{ duration: 1.5, delay, ease: 'easeOut' }}
-  />
-);
+const STEPS = [
+  {
+    label: 'Apply Soap',
+    lottie: 'https://lottie.host/38cfefb0-8487-48e4-999e-2059bdafc8f6/CzULCjv0g5.lottie',
+    dragEmoji: '🧼',
+    dragLabel: 'Soap',
+    voiceSuccess: 'Great job! Now let\'s scrub!',
+  },
+  {
+    label: 'Scrub Hands',
+    lottie: 'https://lottie.host/3dd1df2e-26c1-477d-8a59-47d2ecd6cd4f/omJfXlAyQD.lottie',
+    dragEmoji: '🫧',
+    dragLabel: 'Bubbles',
+    voiceSuccess: 'Awesome scrubbing! Time to rinse!',
+  },
+  {
+    label: 'Rinse Hands',
+    lottie: 'https://lottie.host/5e0a8d6e-6478-4204-ab6d-473238575138/YYutdjPkSY.lottie',
+    dragEmoji: '💧',
+    dragLabel: 'Water',
+    voiceSuccess: 'All clean! Your hands are sparkling!',
+  },
+];
 
 export const HandWashingGame = ({ onBack, onComplete }: HandWashingGameProps) => {
-  const [step, setStep] = useState(0); // 0=drag soap, 1=scrubbing, 2=rinsing, 3=done
-  const [showBubbles, setShowBubbles] = useState(false);
+  const [stepIndex, setStepIndex] = useState(0);
   const [showStar, setShowStar] = useState(false);
-  const handsRef = useRef<HTMLDivElement>(null);
-  const soapX = useMotionValue(0);
-  const soapY = useMotionValue(0);
-  const soapRotate = useTransform(soapX, [-100, 100], [-15, 15]);
+  const [transitioning, setTransitioning] = useState(false);
+  const targetRef = useRef<HTMLDivElement>(null);
 
-  const playSuccessSound = useCallback(() => {
+  const speak = useCallback((text: string) => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.rate = 0.85;
+      u.pitch = 1.1;
+      window.speechSynthesis.speak(u);
+    }
+  }, []);
+
+  const playSound = useCallback(() => {
     try {
       const ctx = new AudioContext();
       const osc = ctx.createOscillator();
@@ -49,39 +67,35 @@ export const HandWashingGame = ({ onBack, onComplete }: HandWashingGameProps) =>
     } catch {}
   }, []);
 
-  const speak = useCallback((text: string) => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text);
-      u.rate = 0.85;
-      u.pitch = 1.1;
-      window.speechSynthesis.speak(u);
-    }
-  }, []);
-
-  const handleSoapDragEnd = useCallback(
+  const handleDragEnd = useCallback(
     (_: any, info: { point: { x: number; y: number } }) => {
-      if (!handsRef.current || step !== 0) return;
-      const rect = handsRef.current.getBoundingClientRect();
+      if (!targetRef.current || transitioning) return;
+      const rect = targetRef.current.getBoundingClientRect();
       const { x, y } = info.point;
       if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
-        playSuccessSound();
-        speak('Great! Now scrub your hands with soap!');
-        setShowBubbles(true);
-        setStep(1);
-        setTimeout(() => {
-          speak('Now rinse your hands under water!');
-          setStep(2);
-        }, 3000);
-        setTimeout(() => {
-          speak('Hands are clean!');
-          setStep(3);
-          setShowStar(true);
-        }, 5500);
+        playSound();
+        const currentStep = STEPS[stepIndex];
+        speak(currentStep.voiceSuccess);
+        setTransitioning(true);
+
+        if (stepIndex < STEPS.length - 1) {
+          setTimeout(() => {
+            setStepIndex((prev) => prev + 1);
+            setTransitioning(false);
+          }, 1500);
+        } else {
+          incrementViews('hand-washing');
+          setTimeout(() => {
+            setShowStar(true);
+          }, 1000);
+        }
       }
     },
-    [step, playSuccessSound, speak]
+    [stepIndex, transitioning, playSound, speak]
   );
+
+  const currentStep = STEPS[stepIndex];
+  const progress = ((stepIndex + (transitioning ? 1 : 0)) / STEPS.length) * 100;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-cyan-50 flex flex-col">
@@ -105,94 +119,98 @@ export const HandWashingGame = ({ onBack, onComplete }: HandWashingGameProps) =>
         <div className="w-full h-2 bg-blue-100 rounded-full overflow-hidden">
           <motion.div
             className="h-full bg-blue-500 rounded-full"
-            animate={{ width: `${(step / 3) * 100}%` }}
+            animate={{ width: `${progress}%` }}
             transition={{ duration: 0.5 }}
           />
         </div>
-        <p className="text-xs text-muted-foreground mt-1.5 text-right">
-          {step === 0 && 'Drag the soap onto your hands!'}
-          {step === 1 && 'Scrubbing... keep going!'}
-          {step === 2 && 'Rinsing with water...'}
-          {step === 3 && 'All done! 🎉'}
-        </p>
+        <div className="flex justify-between mt-2">
+          {STEPS.map((s, i) => (
+            <span
+              key={i}
+              className={`text-xs font-semibold ${
+                i <= stepIndex ? 'text-blue-600' : 'text-muted-foreground'
+              }`}
+            >
+              {i + 1}. {s.label}
+            </span>
+          ))}
+        </div>
       </div>
 
       {/* Game area */}
-      <main className="flex-1 flex flex-col items-center justify-center px-6 relative overflow-hidden">
-        {/* Hands target */}
-        <div className="relative mb-12">
+      <main className="flex-1 flex flex-col items-center justify-center px-6 gap-6 relative overflow-hidden">
+        {/* Lottie animation */}
+        <motion.div
+          key={stepIndex}
+          className="w-64 h-64 sm:w-72 sm:h-72"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4 }}
+        >
+          <DotLottieReact
+            src={currentStep.lottie}
+            loop
+            autoplay
+            style={{ width: '100%', height: '100%' }}
+          />
+        </motion.div>
+
+        {/* Instruction */}
+        <motion.p
+          key={`inst-${stepIndex}`}
+          className="text-lg font-bold text-blue-700 text-center"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          Drag the {currentStep.dragEmoji} onto the hands!
+        </motion.p>
+
+        {/* Drop target + Draggable in a row */}
+        <div className="flex items-center justify-center gap-16 mt-2">
+          {/* Drop target */}
           <motion.div
-            ref={handsRef}
-            className="w-40 h-40 rounded-3xl bg-gradient-to-br from-amber-100 to-amber-200 border-4 border-amber-300 flex items-center justify-center relative"
-            animate={step === 1 ? { rotate: [0, 5, -5, 5, 0] } : {}}
-            transition={step === 1 ? { duration: 0.5, repeat: Infinity } : {}}
+            ref={targetRef}
+            className="w-28 h-28 rounded-full border-4 border-dashed border-blue-300 bg-blue-50 flex items-center justify-center"
+            animate={
+              transitioning
+                ? { borderColor: '#22c55e', backgroundColor: '#f0fdf4' }
+                : {}
+            }
           >
-            <span className="text-6xl">🙌</span>
-
-            {/* Bubbles */}
-            {showBubbles && (
-              <div className="absolute inset-0">
-                {[...Array(12)].map((_, i) => (
-                  <Bubble key={i} delay={i * 0.15} x={20 + Math.random() * 100} />
-                ))}
-              </div>
-            )}
-
-            {step === 1 && (
-              <motion.div
-                className="absolute inset-0 rounded-3xl"
-                animate={{ boxShadow: ['0 0 0 0 rgba(59,130,246,0)', '0 0 20px 10px rgba(59,130,246,0.3)', '0 0 0 0 rgba(59,130,246,0)'] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
-              />
-            )}
-
-            {step === 2 && (
-              <motion.div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                <Droplets size={32} className="text-blue-400" />
-              </motion.div>
-            )}
+            <Hand size={40} className="text-blue-400" />
           </motion.div>
 
-          {step >= 1 && (
+          {/* Draggable icon */}
+          {!transitioning && (
             <motion.div
-              className="absolute -bottom-6 left-1/2 -translate-x-1/2 flex gap-1"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-200 to-emerald-400 border-4 border-emerald-500 flex flex-col items-center justify-center cursor-grab active:cursor-grabbing shadow-xl select-none"
+              drag
+              dragSnapToOrigin
+              onDragEnd={handleDragEnd}
+              whileDrag={{ scale: 1.2, boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}
+              whileHover={{ scale: 1.05 }}
+              animate={{ y: [0, -6, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
             >
-              {[...Array(6)].map((_, i) => (
-                <Sparkles key={i} size={14} className="text-yellow-400" />
-              ))}
+              <span className="text-3xl">{currentStep.dragEmoji}</span>
+              <span className="text-[10px] font-bold text-emerald-800 mt-0.5">
+                {currentStep.dragLabel}
+              </span>
+            </motion.div>
+          )}
+
+          {/* Success checkmark during transition */}
+          {transitioning && (
+            <motion.div
+              className="w-20 h-20 rounded-2xl bg-green-100 border-4 border-green-400 flex items-center justify-center"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: 'spring', stiffness: 300 }}
+            >
+              <span className="text-3xl">✅</span>
             </motion.div>
           )}
         </div>
-
-        {/* Draggable soap */}
-        {step === 0 && (
-          <motion.div
-            className="w-24 h-24 rounded-2xl bg-gradient-to-br from-green-300 to-emerald-400 border-4 border-emerald-500 flex flex-col items-center justify-center cursor-grab active:cursor-grabbing shadow-xl"
-            drag
-            dragSnapToOrigin
-            style={{ x: soapX, y: soapY, rotate: soapRotate }}
-            onDragEnd={handleSoapDragEnd}
-            whileDrag={{ scale: 1.15, boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}
-            whileHover={{ scale: 1.05 }}
-            animate={{ y: [0, -8, 0] }}
-            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-          >
-            <span className="text-3xl">🧴</span>
-            <span className="text-xs font-bold text-emerald-800 mt-1">Soap</span>
-          </motion.div>
-        )}
-
-        {step === 0 && (
-          <motion.p
-            className="mt-6 text-lg font-bold text-blue-600 text-center"
-            animate={{ scale: [1, 1.05, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          >
-            👆 Drag the soap onto your hands!
-          </motion.p>
-        )}
       </main>
 
       <GoldStarPopup show={showStar} onDone={onComplete} />
