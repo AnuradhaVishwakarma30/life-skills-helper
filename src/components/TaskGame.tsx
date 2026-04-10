@@ -5,6 +5,10 @@ import { incrementViews } from '../utils/storage';
 import { IconRenderer } from '../utils/IconRenderer';
 import { HandWashingGame } from './games/HandWashingGame';
 import { RoadCrossingGame } from './games/RoadCrossingGame';
+import { DeepBreathingGame } from './games/DeepBreathingGame';
+import { MorningGreetingGame } from './games/MorningGreetingGame';
+import { SortingZoneGame } from './games/SortingZoneGame';
+import { sortingConfigs } from '../data/sortingConfigs';
 
 interface TaskGameProps {
   task: Task;
@@ -18,6 +22,15 @@ export const TaskGame = ({ task, onBack, onComplete }: TaskGameProps) => {
   }
   if (task.id === 'road-crossing') {
     return <RoadCrossingGame onBack={onBack} onComplete={onComplete} />;
+  }
+  if (task.id === 'deep-breathing') {
+    return <DeepBreathingGame onBack={onBack} onComplete={onComplete} />;
+  }
+  if (task.id === 'morning-greeting') {
+    return <MorningGreetingGame onBack={onBack} onComplete={onComplete} />;
+  }
+  if (sortingConfigs[task.id]) {
+    return <SortingZoneGame config={sortingConfigs[task.id]} onBack={onBack} onComplete={onComplete} />;
   }
   return <DefaultTaskGame task={task} onBack={onBack} onComplete={onComplete} />;
 };
