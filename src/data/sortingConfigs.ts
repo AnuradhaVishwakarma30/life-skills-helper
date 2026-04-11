@@ -10,12 +10,12 @@ export const sortingConfigs: Record<string, SortingConfig> = {
     zones: ['Lights ☀️', 'Darks 🌙'],
     zoneEmojis: ['☀️', '🌙'],
     items: [
-      { id: 'white-shirt', label: 'White Shirt', iconName: 'Shirt', correctZone: 0, iconColor: 'text-gray-300', imageUrl: 'https://images.unsplash.com/photo-1521335629791-ce4aec67dd15?auto=format&fit=crop&q=80&w=500' },
-      { id: 'black-pants', label: 'Black Pants', iconName: 'Shirt', correctZone: 1, iconColor: 'text-gray-800', imageUrl: 'https://source.unsplash.com/featured/300x300/?black,pants' },
-      { id: 'yellow-socks', label: 'Yellow Socks', iconName: 'Star', correctZone: 0, iconColor: 'text-yellow-400', imageUrl: 'https://source.unsplash.com/featured/300x300/?yellow,socks' },
-      { id: 'dark-jacket', label: 'Dark Jacket', iconName: 'Shirt', correctZone: 1, iconColor: 'text-indigo-800', imageUrl: 'https://source.unsplash.com/featured/300x300/?dark,jacket' },
-      { id: 'pink-dress', label: 'Pink Dress', iconName: 'Shirt', correctZone: 0, iconColor: 'text-pink-400', imageUrl: 'https://source.unsplash.com/featured/300x300/?pink,dress' },
-      { id: 'navy-sweater', label: 'Navy Sweater', iconName: 'Shirt', correctZone: 1, iconColor: 'text-blue-900', imageUrl: 'https://source.unsplash.com/featured/300x300/?navy,sweater' },
+      { id: 'white-shirt', label: 'White Shirt', iconName: 'Shirt', correctZone: 0, iconColor: 'text-gray-300', imageUrl: 'https://i.postimg.cc/vHr8tk3y/white-shirt.jpg' },
+      { id: 'black-pants', label: 'Black Pants', iconName: 'Shirt', correctZone: 1, iconColor: 'text-gray-800', imageUrl: 'https://i.postimg.cc/BvdRyQng/images.jpg' },
+      { id: 'yellow-socks', label: 'Yellow Socks', iconName: 'Star', correctZone: 0, iconColor: 'text-yellow-400', imageUrl: 'https://i.postimg.cc/zfRcnZFF/ab38c2ed35cdf2cfe7b96e8ade1ca24b-t.jpg' },
+      { id: 'dark-jacket', label: 'Dark Jacket', iconName: 'Shirt', correctZone: 1, iconColor: 'text-indigo-800', imageUrl: 'https://i.postimg.cc/Zq3wWPJ7/black-jack.png' },
+      { id: 'pink-dress', label: 'Pink Dress', iconName: 'Shirt', correctZone: 0, iconColor: 'text-pink-400', imageUrl: 'https://i.postimg.cc/s2FcCB5S/pink-dress.png' },
+      { id: 'navy-sweater', label: 'Navy Sweater', iconName: 'Shirt', correctZone: 1, iconColor: 'text-blue-900', imageUrl: 'https://i.postimg.cc/DfY1KJTk/images-(1).jpg' },
     ],
   },
   'getting-dressed': {
