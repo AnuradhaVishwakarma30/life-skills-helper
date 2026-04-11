@@ -11,6 +11,7 @@ interface SortingItem {
   iconName: string;
   correctZone: number;
   iconColor?: string;
+  imageUrl?: string;
 }
 
 export interface SortingConfig {
@@ -83,7 +84,7 @@ export const SortingZoneGame = ({ config, onBack, onComplete }: SortingZoneGameP
         setFeedback(null);
       } else {
         setFeedback(`Oops! ${item.label} doesn't go there. Try again!`);
-        speak(`Oops! Try again!`);
+        speak('Oops! Try again!');
         setTimeout(() => setFeedback(null), 2000);
       }
     }
@@ -98,16 +99,16 @@ export const SortingZoneGame = ({ config, onBack, onComplete }: SortingZoneGameP
       <header className="px-6 pt-6 pb-4 flex items-center justify-between">
         <button
           onClick={() => { window.speechSynthesis?.cancel(); onBack(); }}
-          className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm font-medium"
+          className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-lg font-bold"
         >
-          <ArrowLeft size={18} />
+          <ArrowLeft size={22} />
           <span>Exit</span>
         </button>
-        <span className="text-sm font-semibold text-foreground">{config.taskName}</span>
+        <span className="text-lg font-bold text-foreground">{config.taskName}</span>
       </header>
 
       <main className="flex-1 flex flex-col items-center px-4 py-6 gap-6">
-        <h2 className="text-xl font-bold text-foreground text-center">
+        <h2 className="text-2xl font-black text-foreground text-center">
           Sort the items into the right group!
         </h2>
 
@@ -119,8 +120,8 @@ export const SortingZoneGame = ({ config, onBack, onComplete }: SortingZoneGameP
               ref={zoneIndex === 0 ? zone0Ref : zone1Ref}
               className="flex-1 min-h-[160px] rounded-2xl border-3 border-dashed border-muted-foreground/30 bg-card flex flex-col items-center justify-center gap-2 p-4"
             >
-              <span className="text-4xl">{config.zoneEmojis[zoneIndex]}</span>
-              <span className="font-bold text-foreground text-lg">{config.zones[zoneIndex]}</span>
+              <span className="text-5xl">{config.zoneEmojis[zoneIndex]}</span>
+              <span className="font-black text-foreground text-xl">{config.zones[zoneIndex]}</span>
               <div className="flex flex-wrap gap-2 mt-2">
                 {config.items
                   .filter((item) => sorted[item.id] === zoneIndex)
@@ -129,7 +130,7 @@ export const SortingZoneGame = ({ config, onBack, onComplete }: SortingZoneGameP
                       key={item.id}
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
-                      className="flex items-center gap-1 bg-green-100 text-green-700 rounded-full px-3 py-1 text-sm font-semibold"
+                      className="flex items-center gap-1 bg-green-100 text-green-700 rounded-full px-3 py-1 text-sm font-bold"
                     >
                       <CheckCircle size={14} />
                       {item.label}
@@ -144,25 +145,36 @@ export const SortingZoneGame = ({ config, onBack, onComplete }: SortingZoneGameP
           <motion.p
             initial={{ opacity: 0, y: -5 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-red-500 font-semibold text-center"
+            className="text-red-500 font-black text-xl text-center"
           >
             {feedback}
           </motion.p>
         )}
 
-        {/* Draggable items */}
-        <div className="flex flex-wrap justify-center gap-4 mt-4">
+        {/* Draggable photo cards */}
+        <div className="flex flex-wrap justify-center gap-5 mt-4">
           {remaining.map((item) => (
             <motion.div
               key={item.id}
               drag
               dragSnapToOrigin
               onDragEnd={(_, info) => handleDragEnd(item, info)}
-              whileDrag={{ scale: 1.15, zIndex: 50 }}
-              className="w-24 h-24 rounded-2xl bg-card shadow-lg border-2 border-muted flex flex-col items-center justify-center gap-1 cursor-grab active:cursor-grabbing touch-none select-none"
+              whileDrag={{ scale: 1.1, zIndex: 50 }}
+              className="w-28 rounded-2xl bg-card shadow-xl border-2 border-muted flex flex-col items-center overflow-hidden cursor-grab active:cursor-grabbing touch-none select-none"
             >
-              <IconRenderer name={item.iconName} size={32} className={item.iconColor || config.colorText} />
-              <span className="text-xs font-semibold text-foreground text-center leading-tight">{item.label}</span>
+              {item.imageUrl ? (
+                <img
+                  src={item.imageUrl}
+                  alt={item.label}
+                  className="w-full h-24 object-cover"
+                  draggable={false}
+                />
+              ) : (
+                <div className="w-full h-24 flex items-center justify-center">
+                  <IconRenderer name={item.iconName} size={40} className={item.iconColor || config.colorText} />
+                </div>
+              )}
+              <span className="text-xs font-black text-foreground text-center leading-tight py-2 px-1">{item.label}</span>
             </motion.div>
           ))}
         </div>
@@ -171,7 +183,7 @@ export const SortingZoneGame = ({ config, onBack, onComplete }: SortingZoneGameP
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-green-600 font-bold text-lg"
+            className="text-green-600 font-black text-xl"
           >
             All sorted! ✨
           </motion.p>

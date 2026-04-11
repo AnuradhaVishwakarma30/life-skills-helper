@@ -11,8 +11,8 @@ export interface DragChoiceStep {
   targetLabel: string;
   targetIcon: string;
   targetColor: string;
-  correct: { label: string; iconName: string; color: string };
-  wrong: { label: string; iconName: string; color: string };
+  correct: { label: string; iconName: string; color: string; imageUrl?: string };
+  wrong: { label: string; iconName: string; color: string; imageUrl?: string };
 }
 
 export interface DragChoiceConfig {
@@ -83,7 +83,6 @@ export const DragChoiceGame = ({ config, onBack, onComplete }: DragChoiceGamePro
 
   if (showStar) return <GoldStarPopup show onDone={onComplete} />;
 
-  // Randomize left/right placement per step
   const showCorrectFirst = stepIndex % 2 === 0;
   const options = showCorrectFirst
     ? [{ ...step.correct, isCorrect: true }, { ...step.wrong, isCorrect: false }]
@@ -92,21 +91,21 @@ export const DragChoiceGame = ({ config, onBack, onComplete }: DragChoiceGamePro
   return (
     <div className={`min-h-screen ${config.bgGradient} flex flex-col`}>
       <header className="px-6 pt-6 pb-4 flex items-center justify-between">
-        <button onClick={() => { window.speechSynthesis?.cancel(); onBack(); }} className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
-          <ArrowLeft size={18} /><span>Exit</span>
+        <button onClick={() => { window.speechSynthesis?.cancel(); onBack(); }} className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-lg font-bold">
+          <ArrowLeft size={22} /><span>Exit</span>
         </button>
-        <span className="text-sm font-semibold text-foreground">{config.taskName}</span>
+        <span className="text-lg font-bold text-foreground">{config.taskName}</span>
       </header>
 
       <div className="px-6 mb-4">
-        <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+        <div className="w-full h-3 bg-muted rounded-full overflow-hidden">
           <div className={`h-full ${config.accentColor} rounded-full transition-all duration-300`} style={{ width: `${((stepIndex + 1) / config.steps.length) * 100}%` }} />
         </div>
-        <p className="text-xs text-muted-foreground mt-1.5 text-right">Step {stepIndex + 1} of {config.steps.length}</p>
+        <p className="text-sm font-semibold text-muted-foreground mt-2 text-right">Step {stepIndex + 1} of {config.steps.length}</p>
       </div>
 
       <main className="flex-1 flex flex-col items-center justify-center px-6 gap-6">
-        <motion.h2 key={`q-${stepIndex}`} initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-2xl font-bold text-foreground text-center max-w-sm">
+        <motion.h2 key={`q-${stepIndex}`} initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-3xl font-black text-foreground text-center max-w-md">
           {step.question}
         </motion.h2>
 
@@ -116,20 +115,20 @@ export const DragChoiceGame = ({ config, onBack, onComplete }: DragChoiceGamePro
           key={`target-${stepIndex}`}
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
-          className={`w-36 h-36 rounded-3xl border-4 border-dashed flex flex-col items-center justify-center gap-2 ${step.targetColor}`}
+          className={`w-40 h-40 rounded-3xl border-4 border-dashed flex flex-col items-center justify-center gap-2 ${step.targetColor}`}
         >
-          <IconRenderer name={step.targetIcon} size={48} className="text-foreground/60" />
-          <span className="text-sm font-semibold text-foreground/70">{step.targetLabel}</span>
+          <IconRenderer name={step.targetIcon} size={52} className="text-foreground/60" />
+          <span className="text-base font-bold text-foreground/70">{step.targetLabel}</span>
         </motion.div>
 
         {feedback === 'correct' && (
-          <motion.p initial={{ scale: 0 }} animate={{ scale: 1 }} className="text-green-600 font-bold text-xl">✅ Correct!</motion.p>
+          <motion.p initial={{ scale: 0 }} animate={{ scale: 1 }} className="text-green-600 font-black text-2xl">✅ Correct!</motion.p>
         )}
         {feedback === 'wrong' && (
-          <motion.p initial={{ scale: 0 }} animate={{ scale: 1 }} className="text-red-500 font-bold text-xl">❌ Try again!</motion.p>
+          <motion.p initial={{ scale: 0 }} animate={{ scale: 1 }} className="text-red-500 font-black text-2xl">❌ Try again!</motion.p>
         )}
 
-        {/* Draggable options */}
+        {/* Draggable photo cards */}
         <div className="flex gap-6 mt-4">
           {options.map((opt) => (
             <motion.div
@@ -137,13 +136,24 @@ export const DragChoiceGame = ({ config, onBack, onComplete }: DragChoiceGamePro
               drag
               dragSnapToOrigin
               onDragEnd={(_, info) => handleDragEnd(opt.isCorrect, info)}
-              whileDrag={{ scale: 1.15, zIndex: 50 }}
+              whileDrag={{ scale: 1.1, zIndex: 50 }}
               whileTap={{ scale: 0.95 }}
-              animate={feedback === 'wrong' && !opt.isCorrect ? { x: [0, -10, 10, -10, 10, 0] } : {}}
-              className={`w-28 h-28 rounded-2xl shadow-lg border-2 flex flex-col items-center justify-center gap-2 cursor-grab active:cursor-grabbing touch-none select-none ${opt.color}`}
+              animate={feedback === 'wrong' && !opt.isCorrect ? { x: [0, -12, 12, -12, 12, 0] } : {}}
+              className={`w-36 rounded-2xl shadow-xl border-2 flex flex-col items-center overflow-hidden cursor-grab active:cursor-grabbing touch-none select-none bg-card ${opt.color}`}
             >
-              <IconRenderer name={opt.iconName} size={36} />
-              <span className="text-xs font-bold text-center leading-tight">{opt.label}</span>
+              {opt.imageUrl ? (
+                <img
+                  src={opt.imageUrl}
+                  alt={opt.label}
+                  className="w-full h-28 object-cover"
+                  draggable={false}
+                />
+              ) : (
+                <div className="w-full h-28 flex items-center justify-center">
+                  <IconRenderer name={opt.iconName} size={48} />
+                </div>
+              )}
+              <span className="text-sm font-black text-center leading-tight py-3 px-2">{opt.label}</span>
             </motion.div>
           ))}
         </div>

@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Star } from 'lucide-react';
 import { useEffect, useCallback } from 'react';
+import confetti from 'canvas-confetti';
 
 interface GoldStarPopupProps {
   show: boolean;
@@ -22,7 +23,16 @@ export const GoldStarPopup = ({ show, onDone }: GoldStarPopupProps) => {
   useEffect(() => {
     if (show) {
       speak('Wonderful! Task completed!');
-      const timer = setTimeout(onDone, 3500);
+
+      // Fire confetti bursts
+      const fireConfetti = () => {
+        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+        setTimeout(() => confetti({ particleCount: 60, angle: 60, spread: 55, origin: { x: 0 } }), 300);
+        setTimeout(() => confetti({ particleCount: 60, angle: 120, spread: 55, origin: { x: 1 } }), 500);
+      };
+      fireConfetti();
+
+      const timer = setTimeout(onDone, 4000);
       return () => clearTimeout(timer);
     }
   }, [show, speak, onDone]);
@@ -37,7 +47,7 @@ export const GoldStarPopup = ({ show, onDone }: GoldStarPopupProps) => {
           exit={{ opacity: 0 }}
         >
           <motion.div
-            className="flex flex-col items-center gap-4"
+            className="flex flex-col items-center gap-6"
             initial={{ scale: 0, rotate: -180 }}
             animate={{ scale: 1, rotate: 0 }}
             exit={{ scale: 0, rotate: 180 }}
@@ -47,13 +57,13 @@ export const GoldStarPopup = ({ show, onDone }: GoldStarPopupProps) => {
             {[...Array(8)].map((_, i) => (
               <motion.div
                 key={i}
-                className="absolute w-3 h-3 rounded-full bg-yellow-300"
+                className="absolute w-4 h-4 rounded-full bg-yellow-300"
                 initial={{ opacity: 0, scale: 0 }}
                 animate={{
                   opacity: [0, 1, 0],
                   scale: [0, 1.5, 0],
-                  x: Math.cos((i * Math.PI * 2) / 8) * 120,
-                  y: Math.sin((i * Math.PI * 2) / 8) * 120,
+                  x: Math.cos((i * Math.PI * 2) / 8) * 140,
+                  y: Math.sin((i * Math.PI * 2) / 8) * 140,
                 }}
                 transition={{ duration: 1.2, delay: 0.3, ease: 'easeOut' }}
               />
@@ -62,12 +72,12 @@ export const GoldStarPopup = ({ show, onDone }: GoldStarPopupProps) => {
             <motion.div
               animate={{
                 rotate: [0, 10, -10, 10, 0],
-                scale: [1, 1.1, 1, 1.1, 1],
+                scale: [1, 1.15, 1, 1.15, 1],
               }}
               transition={{ duration: 2, repeat: Infinity }}
             >
               <Star
-                size={120}
+                size={140}
                 className="text-yellow-400 drop-shadow-2xl"
                 fill="currentColor"
                 strokeWidth={1}
@@ -75,7 +85,7 @@ export const GoldStarPopup = ({ show, onDone }: GoldStarPopupProps) => {
             </motion.div>
 
             <motion.h1
-              className="text-4xl font-black text-white drop-shadow-lg text-center"
+              className="text-5xl font-black text-white drop-shadow-lg text-center"
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.5 }}
@@ -83,7 +93,7 @@ export const GoldStarPopup = ({ show, onDone }: GoldStarPopupProps) => {
               ⭐ Gold Star! ⭐
             </motion.h1>
             <motion.p
-              className="text-xl text-white/90 font-semibold"
+              className="text-2xl text-white/90 font-bold"
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.7 }}
