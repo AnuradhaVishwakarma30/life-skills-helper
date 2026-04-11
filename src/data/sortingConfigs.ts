@@ -27,7 +27,7 @@ export const sortingConfigs: Record<string, SortingConfig> = {
     zones: ['Rainy Day 🌧️', 'Sunny Day ☀️'],
     zoneEmojis: ['🌧️', '☀️'],
     items: [
-      { id: 'umbrella', label: 'Umbrella', iconName: 'Umbrella', correctZone: 0, iconColor: 'text-blue-500', imageUrl: 'https://source.unsplash.com/featured/300x300/?umbrella,rain' },
+      { id: 'umbrella', label: 'Umbrella', iconName: 'Umbrella', correctZone: 0, iconColor: 'text-blue-500', imageUrl: 'https://i.postimg.cc/HxwkxNJV/umbrella.jpg' },
       { id: 'raincoat', label: 'Raincoat', iconName: 'Shirt', correctZone: 0, iconColor: 'text-yellow-500', imageUrl: 'https://source.unsplash.com/featured/300x300/?raincoat,yellow' },
       { id: 'sunglasses', label: 'Sunglasses', iconName: 'Glasses', correctZone: 1, iconColor: 'text-amber-600', imageUrl: 'https://source.unsplash.com/featured/300x300/?sunglasses' },
       { id: 'rain-boots', label: 'Rain Boots', iconName: 'Footprints', correctZone: 0, iconColor: 'text-green-600', imageUrl: 'https://source.unsplash.com/featured/300x300/?rain,boots' },
