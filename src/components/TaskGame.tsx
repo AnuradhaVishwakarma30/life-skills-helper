@@ -7,8 +7,12 @@ import { HandWashingGame } from './games/HandWashingGame';
 import { RoadCrossingGame } from './games/RoadCrossingGame';
 import { DeepBreathingGame } from './games/DeepBreathingGame';
 import { MorningGreetingGame } from './games/MorningGreetingGame';
+import { BrushingTeethGame } from './games/BrushingTeethGame';
+import { AskingForHelpGame } from './games/AskingForHelpGame';
 import { SortingZoneGame } from './games/SortingZoneGame';
+import { DragChoiceGame } from './games/DragChoiceGame';
 import { sortingConfigs } from '../data/sortingConfigs';
+import { dragChoiceConfigs } from '../data/dragChoiceConfigs';
 
 interface TaskGameProps {
   task: Task;
@@ -17,21 +21,20 @@ interface TaskGameProps {
 }
 
 export const TaskGame = ({ task, onBack, onComplete }: TaskGameProps) => {
-  if (task.id === 'hand-washing') {
-    return <HandWashingGame onBack={onBack} onComplete={onComplete} />;
-  }
-  if (task.id === 'road-crossing') {
-    return <RoadCrossingGame onBack={onBack} onComplete={onComplete} />;
-  }
-  if (task.id === 'deep-breathing') {
-    return <DeepBreathingGame onBack={onBack} onComplete={onComplete} />;
-  }
-  if (task.id === 'morning-greeting') {
-    return <MorningGreetingGame onBack={onBack} onComplete={onComplete} />;
-  }
-  if (sortingConfigs[task.id]) {
-    return <SortingZoneGame config={sortingConfigs[task.id]} onBack={onBack} onComplete={onComplete} />;
-  }
+  // Lottie-based games
+  if (task.id === 'hand-washing') return <HandWashingGame onBack={onBack} onComplete={onComplete} />;
+  if (task.id === 'road-crossing') return <RoadCrossingGame onBack={onBack} onComplete={onComplete} />;
+  if (task.id === 'deep-breathing') return <DeepBreathingGame onBack={onBack} onComplete={onComplete} />;
+  if (task.id === 'morning-greeting') return <MorningGreetingGame onBack={onBack} onComplete={onComplete} />;
+  if (task.id === 'tooth-brushing') return <BrushingTeethGame onBack={onBack} onComplete={onComplete} />;
+  if (task.id === 'asking-for-help') return <AskingForHelpGame onBack={onBack} onComplete={onComplete} />;
+
+  // Drag-choice games
+  if (dragChoiceConfigs[task.id]) return <DragChoiceGame config={dragChoiceConfigs[task.id]} onBack={onBack} onComplete={onComplete} />;
+
+  // Sorting zone games
+  if (sortingConfigs[task.id]) return <SortingZoneGame config={sortingConfigs[task.id]} onBack={onBack} onComplete={onComplete} />;
+
   return <DefaultTaskGame task={task} onBack={onBack} onComplete={onComplete} />;
 };
 
