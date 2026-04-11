@@ -10,7 +10,7 @@ export const sortingConfigs: Record<string, SortingConfig> = {
     zones: ['Lights ☀️', 'Darks 🌙'],
     zoneEmojis: ['☀️', '🌙'],
     items: [
-      { id: 'white-shirt', label: 'White Shirt', iconName: 'Shirt', correctZone: 0, iconColor: 'text-gray-300', imageUrl: 'https://source.unsplash.com/featured/300x300/?white,tshirt' },
+      { id: 'white-shirt', label: 'White Shirt', iconName: 'Shirt', correctZone: 0, iconColor: 'text-gray-300', imageUrl: 'https://images.unsplash.com/photo-1521335629791-ce4aec67dd15?auto=format&fit=crop&q=80&w=500' },
       { id: 'black-pants', label: 'Black Pants', iconName: 'Shirt', correctZone: 1, iconColor: 'text-gray-800', imageUrl: 'https://source.unsplash.com/featured/300x300/?black,pants' },
       { id: 'yellow-socks', label: 'Yellow Socks', iconName: 'Star', correctZone: 0, iconColor: 'text-yellow-400', imageUrl: 'https://source.unsplash.com/featured/300x300/?yellow,socks' },
       { id: 'dark-jacket', label: 'Dark Jacket', iconName: 'Shirt', correctZone: 1, iconColor: 'text-indigo-800', imageUrl: 'https://source.unsplash.com/featured/300x300/?dark,jacket' },
