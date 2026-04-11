@@ -44,7 +44,7 @@ export const sortingConfigs: Record<string, SortingConfig> = {
     zones: ['Fridge 🧊', 'Shelf 📦'],
     zoneEmojis: ['🧊', '📦'],
     items: [
-      { id: 'milk', label: 'Milk', iconName: 'Milk', correctZone: 0, iconColor: 'text-blue-200', imageUrl: 'https://source.unsplash.com/featured/300x300/?milk,carton' },
+      { id: 'milk', label: 'Milk', iconName: 'Milk', correctZone: 0, iconColor: 'text-blue-200', imageUrl: 'https://i.postimg.cc/fWCPNvHP/kim-leary-p3Vi-Lm-Vg-VJ4-unsplash.jpg' },
       { id: 'cheese', label: 'Cheese', iconName: 'Triangle', correctZone: 0, iconColor: 'text-yellow-400', imageUrl: 'https://source.unsplash.com/featured/300x300/?cheese' },
       { id: 'cereal', label: 'Cereal', iconName: 'Wheat', correctZone: 1, iconColor: 'text-amber-600', imageUrl: 'https://source.unsplash.com/featured/300x300/?cereal,box' },
       { id: 'juice', label: 'Juice', iconName: 'CupSoda', correctZone: 0, iconColor: 'text-orange-400', imageUrl: 'https://source.unsplash.com/featured/300x300/?orange,juice' },
