@@ -28,11 +28,11 @@ export const sortingConfigs: Record<string, SortingConfig> = {
     zoneEmojis: ['🌧️', '☀️'],
     items: [
       { id: 'umbrella', label: 'Umbrella', iconName: 'Umbrella', correctZone: 0, iconColor: 'text-blue-500', imageUrl: 'https://i.postimg.cc/HxwkxNJV/umbrella.jpg' },
-      { id: 'raincoat', label: 'Raincoat', iconName: 'Shirt', correctZone: 0, iconColor: 'text-yellow-500', imageUrl: 'https://source.unsplash.com/featured/300x300/?raincoat,yellow' },
-      { id: 'sunglasses', label: 'Sunglasses', iconName: 'Glasses', correctZone: 1, iconColor: 'text-amber-600', imageUrl: 'https://source.unsplash.com/featured/300x300/?sunglasses' },
-      { id: 'rain-boots', label: 'Rain Boots', iconName: 'Footprints', correctZone: 0, iconColor: 'text-green-600', imageUrl: 'https://source.unsplash.com/featured/300x300/?rain,boots' },
-      { id: 'sun-hat', label: 'Sun Hat', iconName: 'Sun', correctZone: 1, iconColor: 'text-orange-400', imageUrl: 'https://source.unsplash.com/featured/300x300/?sun,hat' },
-      { id: 'shorts', label: 'Shorts', iconName: 'Shirt', correctZone: 1, iconColor: 'text-sky-400', imageUrl: 'https://source.unsplash.com/featured/300x300/?shorts,summer' },
+      { id: 'raincoat', label: 'Raincoat', iconName: 'Shirt', correctZone: 0, iconColor: 'text-yellow-500', imageUrl: 'https://i.postimg.cc/W335pBY7/raincoat.jpg' },
+      { id: 'sunglasses', label: 'Sunglasses', iconName: 'Glasses', correctZone: 1, iconColor: 'text-amber-600', imageUrl: 'https://i.postimg.cc/Dw6D2Pyd/sungkas.jpg' },
+      { id: 'rain-boots', label: 'Rain Boots', iconName: 'Footprints', correctZone: 0, iconColor: 'text-green-600', imageUrl: 'https://i.postimg.cc/PJnKbCr9/rainboot.jpg' },
+      { id: 'sun-hat', label: 'Sun Hat', iconName: 'Sun', correctZone: 1, iconColor: 'text-orange-400', imageUrl: 'https://i.postimg.cc/Fs9V95fJ/hat.jpg' },
+      { id: 'shorts', label: 'Shorts', iconName: 'Shirt', correctZone: 1, iconColor: 'text-sky-400', imageUrl: 'https://i.postimg.cc/TY4LBZnv/shorts.jpg' },
     ],
   },
   'grocery-shopping': {
