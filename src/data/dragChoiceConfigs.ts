@@ -45,11 +45,11 @@ export const dragChoiceConfigs: Record<string, DragChoiceConfig> = {
       {
         question: 'What goes first on the plate?',
         voice: 'What goes first? Put the bread on the plate!',
-        targetLabel: 'Plate',
-        targetIcon: 'Circle',
-        targetColor: 'border-yellow-300 bg-yellow-50',
-        correct: { label: 'Bread', iconName: 'Sandwich', color: 'bg-amber-100 border-amber-300 text-amber-800', imageUrl: 'https://source.unsplash.com/featured/300x300/?bread,slice' },
-        wrong: { label: 'Soap', iconName: 'Droplets', color: 'bg-red-100 border-red-300 text-red-700', imageUrl: 'https://source.unsplash.com/featured/300x300/?soap,bar' },
+        targetLabel: 'Plate', imageUrl: 'https://i.postimg.cc/bvS8B5p9/plate.jpg',
+        
+        
+        correct: { label: 'Bread', iconName: 'Sandwich', color: 'bg-amber-100 border-amber-300 text-amber-800', imageUrl: 'https://i.postimg.cc/PJtgTVsY/bread.jpg' },
+        wrong: { label: 'Brick', iconName: 'Brick', color: 'bg-red-100 border-red-300 text-red-700', imageUrl: 'https://i.postimg.cc/d1JHy7HL/brick.jpg' },
       },
       {
         question: 'Now spread the filling on the bread!',
