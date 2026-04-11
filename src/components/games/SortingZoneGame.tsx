@@ -10,6 +10,7 @@ interface SortingItem {
   label: string;
   iconName: string;
   correctZone: number;
+  iconColor?: string;
 }
 
 export interface SortingConfig {
@@ -160,7 +161,7 @@ export const SortingZoneGame = ({ config, onBack, onComplete }: SortingZoneGameP
               whileDrag={{ scale: 1.15, zIndex: 50 }}
               className="w-24 h-24 rounded-2xl bg-card shadow-lg border-2 border-muted flex flex-col items-center justify-center gap-1 cursor-grab active:cursor-grabbing touch-none select-none"
             >
-              <IconRenderer name={item.iconName} size={32} className={config.colorText} />
+              <IconRenderer name={item.iconName} size={32} className={item.iconColor || config.colorText} />
               <span className="text-xs font-semibold text-foreground text-center leading-tight">{item.label}</span>
             </motion.div>
           ))}
