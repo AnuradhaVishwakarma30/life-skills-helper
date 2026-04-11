@@ -1,21 +1,6 @@
 import { SortingConfig } from '../components/games/SortingZoneGame';
 
 export const sortingConfigs: Record<string, SortingConfig> = {
-  'kitchen-safety': {
-    taskId: 'kitchen-safety',
-    taskName: 'Kitchen Safety',
-    colorBg: 'bg-red-500',
-    colorText: 'text-red-600',
-    voiceIntro: 'Let us sort kitchen items! Some things are hot and some are cold. Be careful!',
-    zones: ['Hot 🔥', 'Cold ❄️'],
-    zoneEmojis: ['🔥', '❄️'],
-    items: [
-      { id: 'stove', label: 'Stove', iconName: 'Flame', correctZone: 0, iconColor: 'text-red-500' },
-      { id: 'ice-cream', label: 'Ice Cream', iconName: 'IceCreamCone', correctZone: 1, iconColor: 'text-pink-400' },
-      { id: 'oven', label: 'Oven', iconName: 'CookingPot', correctZone: 0, iconColor: 'text-orange-500' },
-      { id: 'popsicle', label: 'Popsicle', iconName: 'Cherry', correctZone: 1, iconColor: 'text-blue-400' },
-    ],
-  },
   'laundry-sorting': {
     taskId: 'laundry-sorting',
     taskName: 'Laundry Sorting',
@@ -25,12 +10,12 @@ export const sortingConfigs: Record<string, SortingConfig> = {
     zones: ['Lights ☀️', 'Darks 🌙'],
     zoneEmojis: ['☀️', '🌙'],
     items: [
-      { id: 'white-shirt', label: 'White Shirt', iconName: 'Shirt', correctZone: 0, iconColor: 'text-gray-300' },
-      { id: 'black-pants', label: 'Black Pants', iconName: 'Shirt', correctZone: 1, iconColor: 'text-gray-800' },
-      { id: 'yellow-socks', label: 'Yellow Socks', iconName: 'Star', correctZone: 0, iconColor: 'text-yellow-400' },
-      { id: 'dark-jacket', label: 'Dark Jacket', iconName: 'Shirt', correctZone: 1, iconColor: 'text-indigo-800' },
-      { id: 'pink-dress', label: 'Pink Dress', iconName: 'Shirt', correctZone: 0, iconColor: 'text-pink-400' },
-      { id: 'navy-sweater', label: 'Navy Sweater', iconName: 'Shirt', correctZone: 1, iconColor: 'text-blue-900' },
+      { id: 'white-shirt', label: 'White Shirt', iconName: 'Shirt', correctZone: 0, iconColor: 'text-gray-300', imageUrl: 'https://source.unsplash.com/featured/300x300/?white,tshirt' },
+      { id: 'black-pants', label: 'Black Pants', iconName: 'Shirt', correctZone: 1, iconColor: 'text-gray-800', imageUrl: 'https://source.unsplash.com/featured/300x300/?black,pants' },
+      { id: 'yellow-socks', label: 'Yellow Socks', iconName: 'Star', correctZone: 0, iconColor: 'text-yellow-400', imageUrl: 'https://source.unsplash.com/featured/300x300/?yellow,socks' },
+      { id: 'dark-jacket', label: 'Dark Jacket', iconName: 'Shirt', correctZone: 1, iconColor: 'text-indigo-800', imageUrl: 'https://source.unsplash.com/featured/300x300/?dark,jacket' },
+      { id: 'pink-dress', label: 'Pink Dress', iconName: 'Shirt', correctZone: 0, iconColor: 'text-pink-400', imageUrl: 'https://source.unsplash.com/featured/300x300/?pink,dress' },
+      { id: 'navy-sweater', label: 'Navy Sweater', iconName: 'Shirt', correctZone: 1, iconColor: 'text-blue-900', imageUrl: 'https://source.unsplash.com/featured/300x300/?navy,sweater' },
     ],
   },
   'getting-dressed': {
@@ -42,12 +27,12 @@ export const sortingConfigs: Record<string, SortingConfig> = {
     zones: ['Rainy Day 🌧️', 'Sunny Day ☀️'],
     zoneEmojis: ['🌧️', '☀️'],
     items: [
-      { id: 'umbrella', label: 'Umbrella', iconName: 'Umbrella', correctZone: 0, iconColor: 'text-blue-500' },
-      { id: 'raincoat', label: 'Raincoat', iconName: 'Shirt', correctZone: 0, iconColor: 'text-yellow-500' },
-      { id: 'sunglasses', label: 'Sunglasses', iconName: 'Glasses', correctZone: 1, iconColor: 'text-amber-600' },
-      { id: 'rain-boots', label: 'Rain Boots', iconName: 'Footprints', correctZone: 0, iconColor: 'text-green-600' },
-      { id: 'sun-hat', label: 'Sun Hat', iconName: 'Sun', correctZone: 1, iconColor: 'text-orange-400' },
-      { id: 'shorts', label: 'Shorts', iconName: 'Shirt', correctZone: 1, iconColor: 'text-sky-400' },
+      { id: 'umbrella', label: 'Umbrella', iconName: 'Umbrella', correctZone: 0, iconColor: 'text-blue-500', imageUrl: 'https://source.unsplash.com/featured/300x300/?umbrella,rain' },
+      { id: 'raincoat', label: 'Raincoat', iconName: 'Shirt', correctZone: 0, iconColor: 'text-yellow-500', imageUrl: 'https://source.unsplash.com/featured/300x300/?raincoat,yellow' },
+      { id: 'sunglasses', label: 'Sunglasses', iconName: 'Glasses', correctZone: 1, iconColor: 'text-amber-600', imageUrl: 'https://source.unsplash.com/featured/300x300/?sunglasses' },
+      { id: 'rain-boots', label: 'Rain Boots', iconName: 'Footprints', correctZone: 0, iconColor: 'text-green-600', imageUrl: 'https://source.unsplash.com/featured/300x300/?rain,boots' },
+      { id: 'sun-hat', label: 'Sun Hat', iconName: 'Sun', correctZone: 1, iconColor: 'text-orange-400', imageUrl: 'https://source.unsplash.com/featured/300x300/?sun,hat' },
+      { id: 'shorts', label: 'Shorts', iconName: 'Shirt', correctZone: 1, iconColor: 'text-sky-400', imageUrl: 'https://source.unsplash.com/featured/300x300/?shorts,summer' },
     ],
   },
   'grocery-shopping': {
@@ -59,12 +44,12 @@ export const sortingConfigs: Record<string, SortingConfig> = {
     zones: ['Fridge 🧊', 'Shelf 📦'],
     zoneEmojis: ['🧊', '📦'],
     items: [
-      { id: 'milk', label: 'Milk', iconName: 'Milk', correctZone: 0, iconColor: 'text-blue-200' },
-      { id: 'cheese', label: 'Cheese', iconName: 'Triangle', correctZone: 0, iconColor: 'text-yellow-400' },
-      { id: 'cereal', label: 'Cereal', iconName: 'Wheat', correctZone: 1, iconColor: 'text-amber-600' },
-      { id: 'juice', label: 'Juice', iconName: 'CupSoda', correctZone: 0, iconColor: 'text-orange-400' },
-      { id: 'rice', label: 'Rice', iconName: 'Package', correctZone: 1, iconColor: 'text-amber-100' },
-      { id: 'cookies', label: 'Cookies', iconName: 'Cookie', correctZone: 1, iconColor: 'text-amber-700' },
+      { id: 'milk', label: 'Milk', iconName: 'Milk', correctZone: 0, iconColor: 'text-blue-200', imageUrl: 'https://source.unsplash.com/featured/300x300/?milk,carton' },
+      { id: 'cheese', label: 'Cheese', iconName: 'Triangle', correctZone: 0, iconColor: 'text-yellow-400', imageUrl: 'https://source.unsplash.com/featured/300x300/?cheese' },
+      { id: 'cereal', label: 'Cereal', iconName: 'Wheat', correctZone: 1, iconColor: 'text-amber-600', imageUrl: 'https://source.unsplash.com/featured/300x300/?cereal,box' },
+      { id: 'juice', label: 'Juice', iconName: 'CupSoda', correctZone: 0, iconColor: 'text-orange-400', imageUrl: 'https://source.unsplash.com/featured/300x300/?orange,juice' },
+      { id: 'rice', label: 'Rice', iconName: 'Package', correctZone: 1, iconColor: 'text-amber-100', imageUrl: 'https://source.unsplash.com/featured/300x300/?rice,bag' },
+      { id: 'cookies', label: 'Cookies', iconName: 'Cookie', correctZone: 1, iconColor: 'text-amber-700', imageUrl: 'https://source.unsplash.com/featured/300x300/?cookies,biscuit' },
     ],
   },
 };

@@ -83,17 +83,17 @@ const DefaultTaskGame = ({ task, onBack, onComplete }: TaskGameProps) => {
         <div className="animate-bounce-gentle mb-8">
           <PartyPopper size={80} className="text-primary-foreground drop-shadow-lg" />
         </div>
-        <h1 className="text-4xl font-black text-primary-foreground mb-4 text-center">
+        <h1 className="text-5xl font-black text-primary-foreground mb-4 text-center">
           Amazing Job! 🎉
         </h1>
-        <p className="text-primary-foreground/80 text-lg mb-10 text-center max-w-sm">
+        <p className="text-primary-foreground/80 text-xl mb-10 text-center max-w-sm">
           You completed <strong>{task.name}</strong> successfully!
         </p>
         <button
           onClick={onComplete}
-          className="flex items-center gap-3 bg-card text-foreground font-bold text-lg px-10 py-4 rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200"
+          className="flex items-center gap-3 bg-card text-foreground font-bold text-xl px-12 py-5 rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200"
         >
-          <Home size={22} />
+          <Home size={24} />
           Go Back
         </button>
       </div>
@@ -108,27 +108,27 @@ const DefaultTaskGame = ({ task, onBack, onComplete }: TaskGameProps) => {
             if ('speechSynthesis' in window) window.speechSynthesis.cancel();
             onBack();
           }}
-          className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm font-medium"
+          className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-lg font-bold"
         >
-          <ArrowLeft size={18} />
+          <ArrowLeft size={22} />
           <span>Exit</span>
         </button>
         <div className="flex items-center gap-2">
-          <div className={`w-6 h-6 rounded-lg ${task.colorBg} flex items-center justify-center`}>
-            <IconRenderer name={task.iconName} size={14} className="text-primary-foreground" />
+          <div className={`w-8 h-8 rounded-lg ${task.colorBg} flex items-center justify-center`}>
+            <IconRenderer name={task.iconName} size={16} className="text-primary-foreground" />
           </div>
-          <span className="text-sm font-semibold text-foreground">{task.name}</span>
+          <span className="text-lg font-bold text-foreground">{task.name}</span>
         </div>
       </header>
 
       <div className="px-6 mb-2">
-        <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+        <div className="w-full h-3 bg-muted rounded-full overflow-hidden">
           <div
             className={`h-full ${task.colorBg} rounded-full transition-all duration-500 ease-out`}
             style={{ width: `${progress}%` }}
           />
         </div>
-        <p className="text-xs text-muted-foreground mt-1.5 text-right">
+        <p className="text-sm font-semibold text-muted-foreground mt-2 text-right">
           {currentStep >= 0 ? `Step ${currentStep + 1} of ${task.steps.length}` : 'Ready to start'}
         </p>
       </div>
@@ -136,21 +136,21 @@ const DefaultTaskGame = ({ task, onBack, onComplete }: TaskGameProps) => {
       <main className="flex-1 flex flex-col items-center justify-center px-6 py-8">
         {currentStep < 0 ? (
           <div className="text-center animate-scale-in">
-            <div className={`w-32 h-32 rounded-3xl ${task.colorLight} flex items-center justify-center mx-auto mb-8 animate-pulse-slow`}>
-              <IconRenderer name={task.iconName} size={64} className={task.colorText} />
+            <div className={`w-36 h-36 rounded-3xl ${task.colorLight} flex items-center justify-center mx-auto mb-8 animate-pulse-slow`}>
+              <IconRenderer name={task.iconName} size={72} className={task.colorText} />
             </div>
-            <h2 className="text-2xl font-bold text-foreground mb-3">{task.name}</h2>
-            <p className="text-muted-foreground mb-8 max-w-sm">{task.voiceMessage}</p>
+            <h2 className="text-3xl font-black text-foreground mb-3">{task.name}</h2>
+            <p className="text-muted-foreground text-lg mb-8 max-w-sm">{task.voiceMessage}</p>
           </div>
         ) : step ? (
           <div className="text-center animate-scale-in" key={currentStep}>
-            <div className={`w-36 h-36 rounded-3xl ${task.colorLight} flex items-center justify-center mx-auto mb-8 animate-float`}>
-              <IconRenderer name={step.iconName} size={72} className={task.colorText} />
+            <div className={`w-40 h-40 rounded-3xl ${task.colorLight} flex items-center justify-center mx-auto mb-8 animate-float`}>
+              <IconRenderer name={step.iconName} size={80} className={task.colorText} />
             </div>
-            <h2 className="text-2xl font-bold text-foreground mb-2">
+            <h2 className="text-3xl font-black text-foreground mb-2">
               Step {currentStep + 1}
             </h2>
-            <p className="text-lg text-muted-foreground max-w-sm">{step.text}</p>
+            <p className="text-xl text-muted-foreground max-w-sm">{step.text}</p>
           </div>
         ) : null}
       </main>
@@ -158,25 +158,25 @@ const DefaultTaskGame = ({ task, onBack, onComplete }: TaskGameProps) => {
       <div className="px-6 pb-8 flex flex-col items-center gap-4">
         <button
           onClick={() => speak(currentStep < 0 ? task.voiceMessage : step?.text || '')}
-          className={`flex items-center gap-2 ${task.colorLight} ${task.colorText} px-5 py-2.5 rounded-xl text-sm font-semibold hover:shadow-md transition-all`}
+          className={`flex items-center gap-2 ${task.colorLight} ${task.colorText} px-6 py-3 rounded-xl text-base font-bold hover:shadow-md transition-all`}
         >
-          <Volume2 size={18} />
+          <Volume2 size={20} />
           Listen Again
         </button>
 
         <button
           onClick={handleNext}
-          className={`flex items-center gap-3 ${task.colorBg} text-primary-foreground font-bold text-lg px-12 py-4 rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200`}
+          className={`flex items-center gap-3 ${task.colorBg} text-primary-foreground font-black text-xl px-14 py-5 rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200`}
         >
           {currentStep < task.steps.length - 1 ? (
             <>
               Next Step
-              <ArrowRight size={22} />
+              <ArrowRight size={24} />
             </>
           ) : (
             <>
               Finish
-              <CheckCircle size={22} />
+              <CheckCircle size={24} />
             </>
           )}
         </button>
