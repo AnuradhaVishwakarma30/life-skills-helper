@@ -45,9 +45,10 @@ export const dragChoiceConfigs: Record<string, DragChoiceConfig> = {
       {
         question: 'What goes first on the plate?',
         voice: 'What goes first? Put the bread on the plate!',
-        targetLabel: 'Plate', 
-        targetLabels: 'circle',
-        targetColor: 'border-emerald-300 bg-emerald-50',
+       targetLabel: 'Plate', 
+   
+   targetImageUrl: 'https://i.postimg.cc/nLVpG1LH/plate.jpg', 
+   targetColor: 'border-emerald-300 bg-emerald-50',
         
         correct: { label: 'Bread', iconName: 'Sandwich', color: 'bg-amber-100 border-amber-300 text-amber-800', imageUrl: 'https://i.postimg.cc/PJtgTVsY/bread.jpg' },
         wrong: { label: 'Brick', iconName: 'Brick', color: 'bg-red-100 border-red-300 text-red-700', imageUrl: 'https://i.postimg.cc/d1JHy7HL/brick.jpg' },
