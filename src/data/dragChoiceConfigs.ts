@@ -22,7 +22,7 @@ export const dragChoiceConfigs: Record<string, DragChoiceConfig> = {
         targetLabel: 'Food Counter',
         targetImageUrl: 'https://i.postimg.cc/sgkFPzxq/food-counter.jpg',
         targetColor: 'border-emerald-300 bg-emerald-50',
-        correct: { label: 'Say Please', iconName: 'Heart', color: 'bg-emerald-100 border-emerald-300 text-emerald-700', imageUrl: 'https://i.postimg.cc/xd8kmKkR/say-please.gif' },
+        correct: { label: 'Say Please', iconName: 'Heart', color: 'bg-emerald-100 border-emerald-300 text-emerald-700', imageUrl: 'https://i.postimg.cc/pTqRJSgK/please.jpg' },
         wrong: { label: 'Shout Loudly', iconName: 'Volume2', color: 'bg-red-100 border-red-300 text-red-700', imageUrl: 'https://i.postimg.cc/G3xcc4tx/shout.jpg },
       },
       {
