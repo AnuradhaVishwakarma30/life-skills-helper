@@ -9,7 +9,8 @@ export interface DragChoiceStep {
   question: string;
   voice: string;
   targetLabel: string;
-  targetIcon: string;
+  targetIcon?: string;
+  targetImageUrl?: string;
   targetColor: string;
   correct: { label: string; iconName: string; color: string; imageUrl?: string };
   wrong: { label: string; iconName: string; color: string; imageUrl?: string };
@@ -115,9 +116,13 @@ export const DragChoiceGame = ({ config, onBack, onComplete }: DragChoiceGamePro
           key={`target-${stepIndex}`}
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
-          className={`w-40 h-40 rounded-3xl border-4 border-dashed flex flex-col items-center justify-center gap-2 ${step.targetColor}`}
+          className={`w-40 h-40 rounded-3xl border-4 border-dashed flex flex-col items-center justify-center gap-2 overflow-hidden ${step.targetColor}`}
         >
-          <IconRenderer name={step.targetIcon} size={52} className="text-foreground/60" />
+          {step.targetImageUrl ? (
+            <img src={step.targetImageUrl} alt={step.targetLabel} className="w-full h-28 object-cover rounded-t-2xl" draggable={false} />
+          ) : step.targetIcon ? (
+            <IconRenderer name={step.targetIcon} size={52} className="text-foreground/60" />
+          ) : null}
           <span className="text-base font-bold text-foreground/70">{step.targetLabel}</span>
         </motion.div>
 
