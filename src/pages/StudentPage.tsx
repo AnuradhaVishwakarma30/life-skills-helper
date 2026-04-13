@@ -1,18 +1,67 @@
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { BookHeart, Users, Play, AlertCircle } from 'lucide-react';
 import { tasks } from '../data/tasks';
 import { TaskGame } from '../components/TaskGame';
-import { getEnrolledStudents, getGlobalTaskId, incrementStudentAttempts, EnrolledStudent } from '../utils/studentStorage';
+import { supabase } from '@/integrations/supabase/client';
 import { getViewsForTask, isTaskLimitReached, MAX_TASK_VIEWS, incrementViews } from '../utils/storage';
 import { IconRenderer } from '../utils/IconRenderer';
 
+interface Student {
+  id: string;
+  name: string;
+  attempts: number;
+  status: string;
+}
+
 const StudentPage = () => {
-  const [selectedStudent, setSelectedStudent] = useState<EnrolledStudent | null>(null);
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [playing, setPlaying] = useState(false);
   const [completed, setCompleted] = useState(false);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [globalTaskId, setGlobalTaskId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const students = getEnrolledStudents();
-  const globalTaskId = getGlobalTaskId();
+  // Fetch students from cloud
+  const fetchStudents = async () => {
+    const { data } = await supabase.from('students').select('*').order('created_at');
+    if (data) setStudents(data);
+  };
+
+  // Fetch global task from cloud
+  const fetchGlobalTask = async () => {
+    const { data } = await supabase.from('settings').select('value').eq('key', 'global_task_id').single();
+    setGlobalTaskId(data?.value || null);
+  };
+
+  useEffect(() => {
+    const init = async () => {
+      await Promise.all([fetchStudents(), fetchGlobalTask()]);
+      setLoading(false);
+    };
+    init();
+
+    // Real-time: listen for task changes from teacher
+    const settingsChannel = supabase
+      .channel('student-settings')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'settings' }, () => {
+        fetchGlobalTask();
+      })
+      .subscribe();
+
+    // Real-time: listen for student list changes
+    const studentsChannel = supabase
+      .channel('student-list')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'students' }, () => {
+        fetchStudents();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(settingsChannel);
+      supabase.removeChannel(studentsChannel);
+    };
+  }, []);
+
   const task = tasks.find((t) => t.id === globalTaskId);
   const limitReached = task ? isTaskLimitReached(task.id) : false;
 
@@ -23,9 +72,14 @@ const StudentPage = () => {
     }
   }, [task]);
 
-  const handleComplete = useCallback(() => {
+  const handleComplete = useCallback(async () => {
     if (selectedStudent) {
-      incrementStudentAttempts(selectedStudent.id);
+      const newAttempts = selectedStudent.attempts + 1;
+      const newStatus = newAttempts >= 5 ? 'Mastered' : 'In Progress';
+      await supabase
+        .from('students')
+        .update({ attempts: newAttempts, status: newStatus })
+        .eq('id', selectedStudent.id);
     }
     setPlaying(false);
     setCompleted(true);
@@ -37,12 +91,20 @@ const StudentPage = () => {
     setPlaying(false);
   };
 
-  // Full-screen game view — no headers
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <p className="text-muted-foreground text-lg">Loading...</p>
+      </div>
+    );
+  }
+
+  // Full-screen game view
   if (playing && task) {
     return (
       <TaskGame
         task={task}
-        onBack={() => { setPlaying(false); }}
+        onBack={() => setPlaying(false)}
         onComplete={handleComplete}
       />
     );
