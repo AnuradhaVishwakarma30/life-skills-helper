@@ -1,52 +1,116 @@
 import { useState, useEffect } from 'react';
-import { GraduationCap, CheckCircle2, BookHeart, UserPlus, Trash2 } from 'lucide-react';
+import { GraduationCap, CheckCircle2, BookHeart, UserPlus, Trash2, Lock } from 'lucide-react';
 import { tasks } from '../data/tasks';
-import { IconRenderer } from '../utils/IconRenderer';
-import {
-  getEnrolledStudents,
-  enrollStudent,
-  removeStudent,
-  getGlobalTaskId,
-  setGlobalTaskId,
-  getStudentAttempts,
-  getStudentStatus,
-  EnrolledStudent,
-} from '../utils/studentStorage';
+import { supabase } from '@/integrations/supabase/client';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
+const TEACHER_PIN = '4321';
+
+interface Student {
+  id: string;
+  name: string;
+  attempts: number;
+  status: string;
+}
+
 const TeacherPage = () => {
-  const [students, setStudents] = useState<EnrolledStudent[]>(getEnrolledStudents);
-  const [globalTask, setGlobalTask] = useState<string>(getGlobalTaskId() || '');
+  const [authenticated, setAuthenticated] = useState(false);
+  const [pin, setPin] = useState('');
+  const [pinError, setPinError] = useState(false);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [globalTask, setGlobalTask] = useState('');
   const [newName, setNewName] = useState('');
-  const [, setTick] = useState(0);
 
-  // Poll localStorage for live updates every 3s
+  // PIN check
+  const handlePinSubmit = () => {
+    if (pin === TEACHER_PIN) {
+      setAuthenticated(true);
+      setPinError(false);
+    } else {
+      setPinError(true);
+    }
+  };
+
+  // Fetch students
+  const fetchStudents = async () => {
+    const { data } = await supabase.from('students').select('*').order('created_at');
+    if (data) setStudents(data);
+  };
+
+  // Fetch global task
+  const fetchGlobalTask = async () => {
+    const { data } = await supabase.from('settings').select('value').eq('key', 'global_task_id').single();
+    if (data?.value) setGlobalTask(data.value);
+  };
+
   useEffect(() => {
-    const interval = setInterval(() => setTick((t) => t + 1), 3000);
-    return () => clearInterval(interval);
-  }, []);
+    if (!authenticated) return;
+    fetchStudents();
+    fetchGlobalTask();
 
-  const handleEnroll = () => {
+    // Real-time subscription for students
+    const channel = supabase
+      .channel('teacher-students')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'students' }, () => {
+        fetchStudents();
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [authenticated]);
+
+  const handleEnroll = async () => {
     const name = newName.trim();
     if (!name) return;
-    enrollStudent(name);
-    setStudents(getEnrolledStudents());
+    await supabase.from('students').insert({ name });
     setNewName('');
+    fetchStudents();
   };
 
-  const handleRemove = (id: string) => {
-    removeStudent(id);
-    setStudents(getEnrolledStudents());
+  const handleRemove = async (id: string) => {
+    await supabase.from('students').delete().eq('id', id);
+    fetchStudents();
   };
 
-  const handleTaskChange = (taskId: string) => {
-    setGlobalTaskId(taskId);
+  const handleTaskChange = async (taskId: string) => {
     setGlobalTask(taskId);
+    await supabase.from('settings').upsert({ key: 'global_task_id', value: taskId }, { onConflict: 'key' });
   };
 
   const selectedTask = tasks.find((t) => t.id === globalTask);
+
+  // PIN Screen
+  if (!authenticated) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6">
+        <div className="w-full max-w-sm space-y-6 text-center">
+          <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto">
+            <Lock size={32} className="text-primary" />
+          </div>
+          <h1 className="text-3xl font-black text-foreground">Teacher Access</h1>
+          <p className="text-muted-foreground">Enter your PIN to continue</p>
+          <Input
+            type="password"
+            maxLength={4}
+            placeholder="Enter 4-digit PIN"
+            value={pin}
+            onChange={(e) => { setPin(e.target.value); setPinError(false); }}
+            onKeyDown={(e) => e.key === 'Enter' && handlePinSubmit()}
+            className="text-center text-2xl tracking-[0.5em] font-mono"
+          />
+          {pinError && <p className="text-destructive text-sm font-semibold">Incorrect PIN. Try again.</p>}
+          <button
+            onClick={handlePinSubmit}
+            className="w-full bg-primary text-primary-foreground font-bold text-lg px-8 py-3 rounded-xl hover:opacity-90 transition-opacity"
+          >
+            Unlock
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -76,9 +140,7 @@ const TeacherPage = () => {
               </SelectTrigger>
               <SelectContent>
                 {tasks.map((t) => (
-                  <SelectItem key={t.id} value={t.id}>
-                    {t.name}
-                  </SelectItem>
+                  <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -129,34 +191,26 @@ const TeacherPage = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {students.map((s) => {
-                    const attempts = getStudentAttempts(s.id);
-                    const status = getStudentStatus(s.id);
-                    return (
-                      <TableRow key={s.id}>
-                        <TableCell className="font-semibold text-base">{s.name}</TableCell>
-                        <TableCell className="text-center text-base font-mono">{attempts}</TableCell>
-                        <TableCell className="text-center">
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-bold ${
-                              status === 'Mastered'
-                                ? 'bg-green-100 text-green-700'
-                                : status === 'In Progress'
-                                ? 'bg-amber-100 text-amber-700'
-                                : 'bg-muted text-muted-foreground'
-                            }`}
-                          >
-                            {status}
-                          </span>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <button onClick={() => handleRemove(s.id)} className="text-destructive hover:opacity-70 transition-opacity">
-                            <Trash2 size={16} />
-                          </button>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
+                  {students.map((s) => (
+                    <TableRow key={s.id}>
+                      <TableCell className="font-semibold text-base">{s.name}</TableCell>
+                      <TableCell className="text-center text-base font-mono">{s.attempts}</TableCell>
+                      <TableCell className="text-center">
+                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                          s.status === 'Mastered' ? 'bg-green-100 text-green-700'
+                            : s.status === 'In Progress' ? 'bg-amber-100 text-amber-700'
+                            : 'bg-muted text-muted-foreground'
+                        }`}>
+                          {s.status}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <button onClick={() => handleRemove(s.id)} className="text-destructive hover:opacity-70 transition-opacity">
+                          <Trash2 size={16} />
+                        </button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
             </div>
