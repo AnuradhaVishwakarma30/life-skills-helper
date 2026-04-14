@@ -189,7 +189,7 @@ export const dragChoiceConfigs: Record<string, DragChoiceConfig> = {
         targetImageUrl: 'https://i.postimg.cc/QMNZVMKJ/toilet.png',
         targetColor: 'border-slate-300 bg-slate-50',
         correct: { label: 'Washroom Sign', iconName: 'DoorOpen', color: 'bg-slate-100 border-slate-300 text-slate-700', imageUrl: 'https://i.postimg.cc/VkjVqcPp/washroom.jpg' },
-        wrong: { label: 'Kitchen Door', iconName: 'Utensils', color:'bg-slate-100 border-slate-300 text-slate-700', imageUrl: 'https://source.unsplash.com/featured/300x300/?kitchen,door' },
+        wrong: { label: 'Do on Pants', iconName: 'Utensils', color:'bg-slate-100 border-slate-300 text-slate-700', imageUrl: 'https://i.postimg.cc/dtJb514h/Screenshot-2026-04-14-055245.png' },
       },
       {
         question: 'What do you do after using the toilet?',
