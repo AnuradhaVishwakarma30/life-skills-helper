@@ -65,7 +65,9 @@ const StudentPage = () => {
     };
   }, []);
 
-  const task = tasks.find((t) => t.id === globalTaskId);
+  // Per-student task takes priority; fall back to global task
+  const effectiveTaskId = selectedStudent?.assigned_task || globalTaskId;
+  const task = tasks.find((t) => t.id === effectiveTaskId);
   const limitReached = task ? isTaskLimitReached(task.id) : false;
 
   const handleStart = useCallback(() => {
@@ -78,10 +80,17 @@ const StudentPage = () => {
   const handleComplete = useCallback(async () => {
     if (selectedStudent) {
       const newAttempts = selectedStudent.attempts + 1;
-      const newStatus = newAttempts >= 5 ? 'Mastered' : 'In Progress';
+      const newSuccess = selectedStudent.success_count + 1;
+      const newProgress = Math.min(100, newSuccess * 20); // 5 successes = 100%
+      const newStatus = newSuccess >= 5 ? 'Mastered' : 'In Progress';
       await supabase
         .from('students')
-        .update({ attempts: newAttempts, status: newStatus })
+        .update({
+          attempts: newAttempts,
+          success_count: newSuccess,
+          progress_percent: newProgress,
+          status: newStatus,
+        })
         .eq('id', selectedStudent.id);
     }
     setPlaying(false);
