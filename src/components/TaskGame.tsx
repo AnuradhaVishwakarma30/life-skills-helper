@@ -11,8 +11,10 @@ import { BrushingTeethGame } from './games/BrushingTeethGame';
 import { AskingForHelpGame } from './games/AskingForHelpGame';
 import { SortingZoneGame } from './games/SortingZoneGame';
 import { DragChoiceGame } from './games/DragChoiceGame';
+import { GifStepGame } from './games/GifStepGame';
 import { sortingConfigs } from '../data/sortingConfigs';
 import { dragChoiceConfigs } from '../data/dragChoiceConfigs';
+import { gifStepConfigs } from '../data/gifStepConfigs';
 
 interface TaskGameProps {
   task: Task;
@@ -28,6 +30,9 @@ export const TaskGame = ({ task, onBack, onComplete }: TaskGameProps) => {
   if (task.id === 'morning-greeting') return <MorningGreetingGame onBack={onBack} onComplete={onComplete} />;
   if (task.id === 'tooth-brushing') return <BrushingTeethGame onBack={onBack} onComplete={onComplete} />;
   if (task.id === 'asking-for-help') return <AskingForHelpGame onBack={onBack} onComplete={onComplete} />;
+
+  // GIF-step games (Taking a Bath, Making Friends, Eating Manners, Dressing Up, Saving Electricity, etc.)
+  if (gifStepConfigs[task.id]) return <GifStepGame config={gifStepConfigs[task.id]} onBack={onBack} onComplete={onComplete} />;
 
   // Drag-choice games
   if (dragChoiceConfigs[task.id]) return <DragChoiceGame config={dragChoiceConfigs[task.id]} onBack={onBack} onComplete={onComplete} />;
