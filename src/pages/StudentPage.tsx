@@ -229,7 +229,8 @@ const StudentPage = () => {
               </div>
               <span className="font-bold text-foreground text-base">{s.name}</span>
             </button>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
