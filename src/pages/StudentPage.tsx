@@ -11,6 +11,9 @@ interface Student {
   name: string;
   attempts: number;
   status: string;
+  assigned_task: string | null;
+  success_count: number;
+  progress_percent: number;
 }
 
 const StudentPage = () => {
