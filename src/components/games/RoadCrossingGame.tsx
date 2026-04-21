@@ -1,20 +1,26 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
-import { motion, useMotionValue } from 'framer-motion';
-import { ArrowLeft } from 'lucide-react';
+import { useState, useCallback, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, AlertTriangle } from 'lucide-react';
 import { GoldStarPopup } from './GoldStarPopup';
+import { incrementViews } from '../../utils/storage';
 
 interface RoadCrossingGameProps {
   onBack: () => void;
   onComplete: () => void;
 }
 
+/**
+ * REVERSE LOGIC road-crossing game (cognitive challenge):
+ *   • RED light  → MOVE button is correct (success: walking animation + Good Job!)
+ *   • GREEN light → MOVE button is WRONG (warning modal: Wait/Stop)
+ * Header reminder: "In this level, Red means GO and Green means STOP!"
+ */
 export const RoadCrossingGame = ({ onBack, onComplete }: RoadCrossingGameProps) => {
   const [light, setLight] = useState<'red' | 'green'>('red');
-  const [crossed, setCrossed] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showWarning, setShowWarning] = useState(false);
   const [showStar, setShowStar] = useState(false);
-  const [shakeWarning, setShakeWarning] = useState(false);
-  const roadRef = useRef<HTMLDivElement>(null);
-  const characterX = useMotionValue(0);
+  const [successCount, setSuccessCount] = useState(0);
 
   const speak = useCallback((text: string) => {
     if ('speechSynthesis' in window) {
@@ -43,181 +49,191 @@ export const RoadCrossingGame = ({ onBack, onComplete }: RoadCrossingGameProps) 
     } catch {}
   }, []);
 
-  // Toggle traffic light every 4 seconds
+  const playBuzzer = useCallback(() => {
+    try {
+      const ctx = new AudioContext();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(180, ctx.currentTime);
+      gain.gain.setValueAtTime(0.2, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.5);
+    } catch {}
+  }, []);
+
+  // Mount: announce reverse rule + register view
   useEffect(() => {
-    if (crossed) return;
+    incrementViews('road-crossing');
+    speak('In this level, Red means GO and Green means STOP! Press Move only when the light is red.');
+    return () => { window.speechSynthesis?.cancel(); };
+  }, [speak]);
+
+  // Toggle light every 4 seconds
+  useEffect(() => {
+    if (showStar) return;
     const interval = setInterval(() => {
-      setLight((prev) => {
-        const next = prev === 'red' ? 'green' : 'red';
-        speak(next === 'green' ? 'Green light! You can cross now!' : 'Red light! Wait!');
-        return next;
-      });
+      setLight((prev) => (prev === 'red' ? 'green' : 'red'));
     }, 4000);
-    speak('Wait for the green light to cross the road!');
     return () => clearInterval(interval);
-  }, [crossed, speak]);
+  }, [showStar]);
 
-  const handleDragEnd = useCallback(
-    (_: any, info: { offset: { x: number } }) => {
-      if (crossed) return;
+  const handleMove = () => {
+    if (showSuccess || showWarning) return;
 
-      if (light === 'red') {
-        setShakeWarning(true);
-        speak('Stop! The light is red! Wait for green.');
-        setTimeout(() => setShakeWarning(false), 800);
-        return;
-      }
-
-      // If dragged far enough right (crossing the road)
-      if (info.offset.x > 200) {
-        playSuccessSound();
-        speak('You crossed safely! Great job!');
-        setCrossed(true);
-        setTimeout(() => setShowStar(true), 1500);
-      }
-    },
-    [light, crossed, playSuccessSound, speak]
-  );
+    if (light === 'red') {
+      // CORRECT: red means GO in this reverse-logic level
+      playSuccessSound();
+      speak('Good job! Red means go. You are walking safely!');
+      setShowSuccess(true);
+      const newCount = successCount + 1;
+      setSuccessCount(newCount);
+      setTimeout(() => {
+        setShowSuccess(false);
+        if (newCount >= 3) setShowStar(true);
+      }, 2000);
+    } else {
+      // WRONG: green means STOP here
+      playBuzzer();
+      speak('Wait! Green means stop in this level. Stay still!');
+      setShowWarning(true);
+      setTimeout(() => setShowWarning(false), 2000);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-sky-100 to-green-50 flex flex-col">
       {/* Header */}
       <header className="px-6 pt-6 pb-4 flex items-center justify-between">
         <button
-          onClick={() => {
-            window.speechSynthesis?.cancel();
-            onBack();
-          }}
+          onClick={() => { window.speechSynthesis?.cancel(); onBack(); }}
           className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm font-medium"
         >
-          <ArrowLeft size={18} />
-          <span>Exit</span>
+          <ArrowLeft size={18} /><span>Exit</span>
         </button>
         <span className="text-sm font-bold text-amber-600">🚦 Road Crossing</span>
       </header>
 
-      {/* Traffic Light */}
-      <div className="flex justify-center mb-6">
-        <motion.div
-          className="flex flex-col items-center gap-3 bg-gray-800 rounded-2xl p-4 shadow-xl"
-          animate={shakeWarning ? { x: [-10, 10, -10, 10, 0] } : {}}
-          transition={{ duration: 0.4 }}
-        >
-          <motion.div
-            className={`w-14 h-14 rounded-full border-4 ${
-              light === 'red'
-                ? 'bg-red-500 border-red-400 shadow-[0_0_20px_rgba(239,68,68,0.6)]'
-                : 'bg-red-900/40 border-red-800/40'
-            }`}
-            animate={light === 'red' ? { scale: [1, 1.1, 1] } : {}}
-            transition={{ duration: 1, repeat: Infinity }}
-          />
-          <motion.div
-            className={`w-14 h-14 rounded-full border-4 ${
-              light === 'green'
-                ? 'bg-green-500 border-green-400 shadow-[0_0_20px_rgba(34,197,94,0.6)]'
-                : 'bg-green-900/40 border-green-800/40'
-            }`}
-            animate={light === 'green' ? { scale: [1, 1.1, 1] } : {}}
-            transition={{ duration: 1, repeat: Infinity }}
-          />
-          <p className="text-white text-xs font-bold mt-1">
-            {light === 'red' ? '🛑 STOP' : '✅ WALK'}
-          </p>
-        </motion.div>
+      {/* Reverse-logic rule banner */}
+      <div className="mx-6 mb-4 rounded-2xl bg-amber-100 border-2 border-amber-300 px-4 py-3 text-center">
+        <p className="text-base font-black text-amber-800 leading-tight">
+          🧠 In this level, <span className="text-red-600">Red means GO</span> and{' '}
+          <span className="text-green-700">Green means STOP!</span>
+        </p>
+        <p className="text-xs font-semibold text-amber-700 mt-1">
+          Tap MOVE {successCount}/3 times on RED to win
+        </p>
       </div>
 
-      {/* Road scene */}
-      <main className="flex-1 flex flex-col items-center justify-center px-6 relative">
-        {/* Instruction */}
-        <motion.p
-          className={`text-lg font-bold mb-6 text-center ${
-            light === 'red' ? 'text-red-500' : 'text-green-600'
-          }`}
-          key={light}
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          {crossed
-            ? '🎉 You crossed safely!'
-            : light === 'red'
-            ? '🛑 Wait! Do NOT cross!'
-            : '✅ Green light! Drag to cross →'}
-        </motion.p>
+      {/* Traffic Light */}
+      <div className="flex justify-center mb-6">
+        <div className="flex flex-col items-center gap-3 bg-gray-800 rounded-2xl p-4 shadow-xl">
+          <motion.div
+            className={`w-16 h-16 rounded-full border-4 ${
+              light === 'red'
+                ? 'bg-red-500 border-red-300 shadow-[0_0_25px_rgba(239,68,68,0.8)]'
+                : 'bg-red-900/40 border-red-800/40'
+            }`}
+            animate={light === 'red' ? { scale: [1, 1.12, 1] } : {}}
+            transition={{ duration: 1, repeat: Infinity }}
+          />
+          <motion.div
+            className={`w-16 h-16 rounded-full border-4 ${
+              light === 'green'
+                ? 'bg-green-500 border-green-300 shadow-[0_0_25px_rgba(34,197,94,0.8)]'
+                : 'bg-green-900/40 border-green-800/40'
+            }`}
+            animate={light === 'green' ? { scale: [1, 1.12, 1] } : {}}
+            transition={{ duration: 1, repeat: Infinity }}
+          />
+          <p className="text-white text-sm font-black mt-1">
+            {light === 'red' ? '🟥 RED = GO' : '🟩 GREEN = STOP'}
+          </p>
+        </div>
+      </div>
 
-        {/* Road */}
-        <div className="w-full max-w-md relative" ref={roadRef}>
-          {/* Sidewalk left */}
-          <div className="absolute left-0 top-0 bottom-0 w-16 bg-stone-300 rounded-l-2xl border-2 border-stone-400 flex items-center justify-center">
-            <span className="text-xs font-bold text-stone-600 [writing-mode:vertical-rl] rotate-180">
-              Sidewalk
-            </span>
+      {/* Character + road */}
+      <main className="flex-1 flex flex-col items-center justify-center px-6 gap-6 relative">
+        <div className="w-full max-w-md h-32 bg-gray-700 rounded-2xl relative flex items-center overflow-hidden">
+          <div className="absolute inset-0 flex items-center justify-around px-4">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="w-8 h-2 bg-yellow-400 rounded" />
+            ))}
           </div>
-
-          {/* Road surface */}
-          <div className="mx-16 h-36 bg-gray-700 relative flex items-center">
-            {/* Road lines */}
-            <div className="absolute inset-0 flex items-center justify-around px-4">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="w-8 h-2 bg-yellow-400 rounded" />
-              ))}
-            </div>
-
-            {/* Character */}
-            {!crossed && (
-              <motion.div
-                className="absolute left-2 z-10 w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 border-4 border-blue-300 flex items-center justify-center cursor-grab active:cursor-grabbing shadow-xl"
-                drag="x"
-                dragConstraints={{ left: 0, right: 0 }}
-                dragElastic={0.8}
-                style={{ x: characterX }}
-                onDragEnd={handleDragEnd}
-                whileDrag={{ scale: 1.15 }}
-                animate={
-                  light === 'green'
-                    ? { y: [0, -4, 0] }
-                    : {}
-                }
-                transition={{ duration: 1, repeat: Infinity }}
-              >
-                <span className="text-2xl">🚶</span>
-              </motion.div>
-            )}
-
-            {crossed && (
-              <motion.div
-                className="absolute right-2 z-10 w-16 h-16 rounded-full bg-gradient-to-br from-green-400 to-green-600 border-4 border-green-300 flex items-center justify-center shadow-xl"
-                initial={{ x: -200, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ type: 'spring', stiffness: 100 }}
-              >
-                <span className="text-2xl">🎉</span>
-              </motion.div>
-            )}
-          </div>
-
-          {/* Sidewalk right */}
-          <div className="absolute right-0 top-0 bottom-0 w-16 bg-stone-300 rounded-r-2xl border-2 border-stone-400 flex items-center justify-center">
-            <span className="text-xs font-bold text-stone-600 [writing-mode:vertical-rl] rotate-180">
-              Sidewalk
-            </span>
-          </div>
+          <motion.div
+            className="absolute z-10 w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 border-4 border-blue-300 flex items-center justify-center shadow-xl"
+            initial={{ x: 12 }}
+            animate={
+              showSuccess
+                ? { x: [12, 80, 150, 220, 280], y: [0, -6, 0, -6, 0] }
+                : { x: 12 }
+            }
+            transition={{ duration: 1.8, ease: 'easeInOut' }}
+          >
+            <span className="text-2xl">🚶</span>
+          </motion.div>
         </div>
 
-        {/* Warning on red drag */}
-        {shakeWarning && (
+        {/* MOVE button — big, accessible, high-contrast */}
+        <button
+          onClick={handleMove}
+          disabled={showSuccess || showWarning}
+          className="w-full max-w-xs py-6 px-8 rounded-2xl bg-blue-600 text-white font-black text-2xl shadow-xl hover:bg-blue-700 hover:scale-105 active:scale-95 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          🚶 MOVE
+        </button>
+
+        {/* Success toast */}
+        <AnimatePresence>
+          {showSuccess && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="bg-green-100 border-2 border-green-400 rounded-2xl px-6 py-4 shadow-lg"
+            >
+              <p className="text-green-700 font-black text-xl text-center">
+                ✅ Good Job! Walking safely!
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </main>
+
+      {/* Warning modal: WAIT */}
+      <AnimatePresence>
+        {showWarning && (
           <motion.div
-            className="mt-6 bg-red-100 border-2 border-red-300 rounded-xl px-6 py-3"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center px-6"
           >
-            <p className="text-red-600 font-bold text-center">
-              🛑 Red light! You must wait!
-            </p>
+            <motion.div
+              initial={{ scale: 0.7, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.8 }}
+              className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl border-4 border-red-400"
+            >
+              <motion.div
+                animate={{ rotate: [0, -10, 10, -10, 10, 0] }}
+                transition={{ duration: 0.5 }}
+                className="mx-auto mb-4 w-20 h-20 rounded-full bg-red-100 flex items-center justify-center"
+              >
+                <AlertTriangle size={48} className="text-red-600" />
+              </motion.div>
+              <h2 className="text-3xl font-black text-red-600 mb-2">⛔ WAIT!</h2>
+              <p className="text-lg font-bold text-foreground/80">
+                Green means <span className="text-red-600">STOP</span> in this level.
+                Stay still!
+              </p>
+            </motion.div>
           </motion.div>
         )}
-      </main>
+      </AnimatePresence>
 
       <GoldStarPopup show={showStar} onDone={onComplete} />
     </div>
