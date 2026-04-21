@@ -11,6 +11,9 @@ interface Student {
   name: string;
   attempts: number;
   status: string;
+  assigned_task: string | null;
+  success_count: number;
+  progress_percent: number;
 }
 
 const StudentPage = () => {
@@ -62,7 +65,9 @@ const StudentPage = () => {
     };
   }, []);
 
-  const task = tasks.find((t) => t.id === globalTaskId);
+  // Per-student task takes priority; fall back to global task
+  const effectiveTaskId = selectedStudent?.assigned_task || globalTaskId;
+  const task = tasks.find((t) => t.id === effectiveTaskId);
   const limitReached = task ? isTaskLimitReached(task.id) : false;
 
   const handleStart = useCallback(() => {
@@ -75,10 +80,17 @@ const StudentPage = () => {
   const handleComplete = useCallback(async () => {
     if (selectedStudent) {
       const newAttempts = selectedStudent.attempts + 1;
-      const newStatus = newAttempts >= 5 ? 'Mastered' : 'In Progress';
+      const newSuccess = selectedStudent.success_count + 1;
+      const newProgress = Math.min(100, newSuccess * 20); // 5 successes = 100%
+      const newStatus = newSuccess >= 5 ? 'Mastered' : 'In Progress';
       await supabase
         .from('students')
-        .update({ attempts: newAttempts, status: newStatus })
+        .update({
+          attempts: newAttempts,
+          success_count: newSuccess,
+          progress_percent: newProgress,
+          status: newStatus,
+        })
         .eq('id', selectedStudent.id);
     }
     setPlaying(false);
@@ -187,7 +199,7 @@ const StudentPage = () => {
       <h1 className="text-4xl font-black text-foreground mb-2">Student Portal</h1>
       <p className="text-muted-foreground mb-10">Select your name to begin</p>
 
-      {!task && (
+      {!globalTaskId && students.every((s) => !s.assigned_task) && (
         <div className="bg-muted rounded-2xl p-8 text-center max-w-sm mb-8">
           <AlertCircle size={32} className="text-muted-foreground mx-auto mb-3" />
           <p className="text-foreground font-bold mb-1">No Task Assigned</p>
@@ -203,11 +215,13 @@ const StudentPage = () => {
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-lg w-full">
-          {students.map((s) => (
+          {students.map((s) => {
+            const studentHasTask = !!(s.assigned_task || globalTaskId);
+            return (
             <button
               key={s.id}
-              onClick={() => task && setSelectedStudent(s)}
-              disabled={!task}
+              onClick={() => studentHasTask && setSelectedStudent(s)}
+              disabled={!studentHasTask}
               className="bg-card rounded-2xl border-2 border-border p-6 flex flex-col items-center gap-3 shadow-sm hover:shadow-lg hover:border-primary/40 hover:scale-[1.03] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center text-2xl font-bold text-primary">
@@ -215,7 +229,8 @@ const StudentPage = () => {
               </div>
               <span className="font-bold text-foreground text-base">{s.name}</span>
             </button>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
