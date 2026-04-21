@@ -199,7 +199,7 @@ const StudentPage = () => {
       <h1 className="text-4xl font-black text-foreground mb-2">Student Portal</h1>
       <p className="text-muted-foreground mb-10">Select your name to begin</p>
 
-      {!task && (
+      {!globalTaskId && students.every((s) => !s.assigned_task) && (
         <div className="bg-muted rounded-2xl p-8 text-center max-w-sm mb-8">
           <AlertCircle size={32} className="text-muted-foreground mx-auto mb-3" />
           <p className="text-foreground font-bold mb-1">No Task Assigned</p>
