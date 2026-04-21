@@ -37,25 +37,34 @@ export type Database = {
       }
       students: {
         Row: {
+          assigned_task: string | null
           attempts: number
           created_at: string
           id: string
           name: string
+          progress_percent: number
           status: string
+          success_count: number
         }
         Insert: {
+          assigned_task?: string | null
           attempts?: number
           created_at?: string
           id?: string
           name: string
+          progress_percent?: number
           status?: string
+          success_count?: number
         }
         Update: {
+          assigned_task?: string | null
           attempts?: number
           created_at?: string
           id?: string
           name?: string
+          progress_percent?: number
           status?: string
+          success_count?: number
         }
         Relationships: []
       }
