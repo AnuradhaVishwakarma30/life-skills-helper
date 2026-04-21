@@ -215,11 +215,13 @@ const StudentPage = () => {
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-lg w-full">
-          {students.map((s) => (
+          {students.map((s) => {
+            const studentHasTask = !!(s.assigned_task || globalTaskId);
+            return (
             <button
               key={s.id}
-              onClick={() => task && setSelectedStudent(s)}
-              disabled={!task}
+              onClick={() => studentHasTask && setSelectedStudent(s)}
+              disabled={!studentHasTask}
               className="bg-card rounded-2xl border-2 border-border p-6 flex flex-col items-center gap-3 shadow-sm hover:shadow-lg hover:border-primary/40 hover:scale-[1.03] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center text-2xl font-bold text-primary">
