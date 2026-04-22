@@ -94,7 +94,7 @@ export const tasks: Task[] = [
   },
   {
     id: 'getting-dressed',
-    name: 'Getting Dressed',
+    name: 'Dress Sorting',
     iconName: 'Shirt',
     voiceMessage: "Let's get dressed! Pick the right clothes for the weather.",
     colorText: 'text-orange-600',
@@ -163,7 +163,7 @@ export const tasks: Task[] = [
   },
   {
     id: 'grocery-shopping',
-    name: 'Grocery Shopping',
+    name: 'Grocery Sorting',
     iconName: 'ShoppingCart',
     voiceMessage: "Let's sort groceries! Cold items go in the fridge, dry items on the shelf.",
     colorText: 'text-pink-600',
@@ -191,23 +191,6 @@ export const tasks: Task[] = [
       { text: 'Wake up and wash your face', iconName: 'Sun' },
       { text: 'Brush your teeth', iconName: 'Smile' },
       { text: 'Get dressed', iconName: 'Shirt' },
-    ],
-  },
-  {
-    id: 'classroom-behavior',
-    name: 'Classroom Behavior',
-    iconName: 'BookOpen',
-    voiceMessage: "Good classroom behavior helps everyone learn!",
-    colorText: 'text-blue-700',
-    colorBg: 'bg-blue-600',
-    colorLight: 'bg-blue-50',
-    colorBorder: 'border-blue-300',
-    colorHover: 'hover:bg-blue-700',
-    colorRing: 'ring-blue-500',
-    steps: [
-      { text: 'Listen to the teacher', iconName: 'Ear' },
-      { text: 'Raise your hand to speak', iconName: 'Hand' },
-      { text: 'Be kind to classmates', iconName: 'Heart' },
     ],
   },
   {

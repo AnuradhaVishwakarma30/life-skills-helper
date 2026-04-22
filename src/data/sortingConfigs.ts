@@ -20,7 +20,7 @@ export const sortingConfigs: Record<string, SortingConfig> = {
   },
   'getting-dressed': {
     taskId: 'getting-dressed',
-    taskName: 'Getting Dressed',
+    taskName: 'Dress Sorting',
     colorBg: 'bg-orange-500',
     colorText: 'text-orange-600',
     voiceIntro: 'Look at the weather and pick the right clothes!',
@@ -37,7 +37,7 @@ export const sortingConfigs: Record<string, SortingConfig> = {
   },
   'grocery-shopping': {
     taskId: 'grocery-shopping',
-    taskName: 'Grocery Shopping',
+    taskName: 'Grocery Sorting',
     colorBg: 'bg-pink-500',
     colorText: 'text-pink-600',
     voiceIntro: 'Let us put the groceries in the right place! Cold items go in the fridge, dry items go on the shelf.',
