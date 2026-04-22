@@ -161,7 +161,7 @@ export const dragChoiceConfigs: Record<string, DragChoiceConfig> = {
         question: 'After getting ready, what do you do?',
         voice: 'After getting ready for school, what do you do next?',
         targetLabel: 'Breakfast Time',
-        targetImageUrl: 'https://i.postimg.cc/Zn7Vffsg/Gemini-Generated-Image-wpvvt7wpvvt7wpvv.png'',
+        targetImageUrl: 'https://i.postimg.cc/Zn7Vffsg/Gemini-Generated-Image-wpvvt7wpvvt7wpvv.png',
         targetColor: 'border-amber-300 bg-amber-50',
         correct: { label: 'Eat Breakfast', iconName: 'Apple', color: 'bg-amber-100 border-amber-300 text-amber-800', imageUrl: 'https://i.postimg.cc/gJwvYQwJ/eat.jpg' },
         wrong: { label: 'Watch TV', iconName: 'Tv', color: 'bg-amber-100 border-amber-300 text-amber-800', imageUrl: 'https://i.postimg.cc/15LRTTSr/Screenshot-2026-04-22-153525.png' },
