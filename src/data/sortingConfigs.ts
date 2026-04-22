@@ -18,8 +18,8 @@ export const sortingConfigs: Record<string, SortingConfig> = {
       { id: 'navy-sweater', label: 'Navy Sweater', iconName: 'Shirt', correctZone: 1, iconColor: 'text-blue-900', imageUrl: 'https://i.postimg.cc/DfY1KJTk/images-(1).jpg' },
     ],
   },
-  'getting-dressed': {
-    taskId: 'getting-dressed',
+  'dress sorting': {
+    taskId: 'dress sorting',
     taskName: 'Dress Sorting',
     colorBg: 'bg-orange-500',
     colorText: 'text-orange-600',
@@ -35,8 +35,8 @@ export const sortingConfigs: Record<string, SortingConfig> = {
       { id: 'shorts', label: 'Shorts', iconName: 'Shirt', correctZone: 1, iconColor: 'text-sky-400', imageUrl: 'https://i.postimg.cc/TY4LBZnv/shorts.jpg' },
     ],
   },
-  'grocery-shopping': {
-    taskId: 'grocery-shopping',
+  'grocery-sorting': {
+    taskId: 'grocery-sorting',
     taskName: 'Grocery Sorting',
     colorBg: 'bg-pink-500',
     colorText: 'text-pink-600',
