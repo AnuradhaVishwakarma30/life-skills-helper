@@ -35,6 +35,50 @@ export type Database = {
         }
         Relationships: []
       }
+      student_task_progress: {
+        Row: {
+          attempts: number
+          created_at: string
+          id: string
+          last_played_at: string | null
+          status: string
+          student_id: string
+          success_count: number
+          task_id: string
+          updated_at: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          id?: string
+          last_played_at?: string | null
+          status?: string
+          student_id: string
+          success_count?: number
+          task_id: string
+          updated_at?: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          id?: string
+          last_played_at?: string | null
+          status?: string
+          student_id?: string
+          success_count?: number
+          task_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_task_progress_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       students: {
         Row: {
           assigned_task: string | null
