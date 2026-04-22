@@ -3,8 +3,9 @@ import { BookHeart, Users, Play, AlertCircle } from 'lucide-react';
 import { tasks } from '../data/tasks';
 import { TaskGame } from '../components/TaskGame';
 import { supabase } from '@/integrations/supabase/client';
-import { getViewsForTask, isTaskLimitReached, MAX_TASK_VIEWS, incrementViews } from '../utils/storage';
 import { IconRenderer } from '../utils/IconRenderer';
+
+const MAX_TASK_ATTEMPTS = 5;
 
 interface Student {
   id: string;
@@ -16,6 +17,16 @@ interface Student {
   progress_percent: number;
 }
 
+interface TaskProgress {
+  id: string;
+  student_id: string;
+  task_id: string;
+  attempts: number;
+  success_count: number;
+  status: string;
+  last_played_at: string | null;
+}
+
 const StudentPage = () => {
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [playing, setPlaying] = useState(false);
@@ -23,16 +34,15 @@ const StudentPage = () => {
   const [students, setStudents] = useState<Student[]>([]);
   const [globalTaskId, setGlobalTaskId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [currentProgress, setCurrentProgress] = useState<TaskProgress | null>(null);
 
-  // Fetch students from cloud
   const fetchStudents = async () => {
     const { data } = await supabase.from('students').select('*').order('created_at');
     if (data) setStudents(data);
   };
 
-  // Fetch global task from cloud
   const fetchGlobalTask = async () => {
-    const { data } = await supabase.from('settings').select('value').eq('key', 'global_task_id').single();
+    const { data } = await supabase.from('settings').select('value').eq('key', 'global_task_id').maybeSingle();
     setGlobalTaskId(data?.value || null);
   };
 
@@ -43,20 +53,14 @@ const StudentPage = () => {
     };
     init();
 
-    // Real-time: listen for task changes from teacher
     const settingsChannel = supabase
       .channel('student-settings')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'settings' }, () => {
-        fetchGlobalTask();
-      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'settings' }, fetchGlobalTask)
       .subscribe();
 
-    // Real-time: listen for student list changes
     const studentsChannel = supabase
       .channel('student-list')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'students' }, () => {
-        fetchStudents();
-      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'students' }, fetchStudents)
       .subscribe();
 
     return () => {
@@ -65,42 +69,87 @@ const StudentPage = () => {
     };
   }, []);
 
-  // Per-student task takes priority; fall back to global task
   const effectiveTaskId = selectedStudent?.assigned_task || globalTaskId;
   const task = tasks.find((t) => t.id === effectiveTaskId);
-  const limitReached = task ? isTaskLimitReached(task.id) : false;
 
-  const handleStart = useCallback(() => {
-    if (task) {
-      incrementViews(task.id);
-      setPlaying(true);
-    }
-  }, [task]);
+  // Load this specific student's progress for this specific task
+  const loadProgress = useCallback(async () => {
+    if (!selectedStudent || !task) return;
+    const { data } = await supabase
+      .from('student_task_progress')
+      .select('*')
+      .eq('student_id', selectedStudent.id)
+      .eq('task_id', task.id)
+      .maybeSingle();
+    setCurrentProgress(data as TaskProgress | null);
+  }, [selectedStudent, task]);
 
-  const handleComplete = useCallback(async () => {
-    if (selectedStudent) {
-      const newAttempts = selectedStudent.attempts + 1;
-      const newSuccess = selectedStudent.success_count + 1;
-      const newProgress = Math.min(100, newSuccess * 20); // 5 successes = 100%
-      const newStatus = newSuccess >= 5 ? 'Mastered' : 'In Progress';
+  useEffect(() => {
+    loadProgress();
+  }, [loadProgress]);
+
+  const attemptsForTask = currentProgress?.attempts ?? 0;
+  const limitReached = attemptsForTask >= MAX_TASK_ATTEMPTS;
+
+  const handleStart = useCallback(async () => {
+    if (!task || !selectedStudent) return;
+
+    // Per-student per-task attempt counter (Supabase upsert)
+    const newAttempts = attemptsForTask + 1;
+    const successCount = currentProgress?.success_count ?? 0;
+    const status = successCount > 0 ? 'In Progress' : 'In Progress';
+
+    if (currentProgress) {
       await supabase
-        .from('students')
+        .from('student_task_progress')
         .update({
           attempts: newAttempts,
-          success_count: newSuccess,
-          progress_percent: newProgress,
-          status: newStatus,
+          status,
+          last_played_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
         })
-        .eq('id', selectedStudent.id);
+        .eq('id', currentProgress.id);
+    } else {
+      await supabase.from('student_task_progress').insert({
+        student_id: selectedStudent.id,
+        task_id: task.id,
+        attempts: newAttempts,
+        success_count: 0,
+        status,
+        last_played_at: new Date().toISOString(),
+      });
     }
+    await loadProgress();
+    setPlaying(true);
+  }, [task, selectedStudent, attemptsForTask, currentProgress, loadProgress]);
+
+  const handleComplete = useCallback(async () => {
+    if (!selectedStudent || !task) return;
+
+    const newSuccess = (currentProgress?.success_count ?? 0) + 1;
+    const newStatus = newSuccess >= 5 ? 'Completed' : 'In Progress';
+
+    if (currentProgress) {
+      await supabase
+        .from('student_task_progress')
+        .update({
+          success_count: newSuccess,
+          status: newStatus,
+          last_played_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', currentProgress.id);
+    }
+
     setPlaying(false);
     setCompleted(true);
-  }, [selectedStudent]);
+  }, [selectedStudent, task, currentProgress]);
 
   const handleDone = () => {
     setSelectedStudent(null);
     setCompleted(false);
     setPlaying(false);
+    setCurrentProgress(null);
   };
 
   if (loading) {
@@ -111,18 +160,10 @@ const StudentPage = () => {
     );
   }
 
-  // Full-screen game view
   if (playing && task) {
-    return (
-      <TaskGame
-        task={task}
-        onBack={() => setPlaying(false)}
-        onComplete={handleComplete}
-      />
-    );
+    return <TaskGame task={task} onBack={() => setPlaying(false)} onComplete={handleComplete} />;
   }
 
-  // Completion screen
   if (completed && task) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100 px-6">
@@ -139,10 +180,8 @@ const StudentPage = () => {
     );
   }
 
-  // Student selected — show task card
   if (selectedStudent && task) {
-    const views = getViewsForTask(task.id);
-    const remaining = MAX_TASK_VIEWS - views;
+    const remaining = MAX_TASK_ATTEMPTS - attemptsForTask;
 
     return (
       <div className="min-h-screen bg-gradient-to-br from-background via-secondary to-primary/5 flex flex-col">
@@ -166,12 +205,12 @@ const StudentPage = () => {
                 <IconRenderer name={task.iconName} size={56} className="text-primary-foreground" />
               </div>
               <h2 className="text-3xl font-bold text-primary-foreground mb-3">{task.name}</h2>
-              <p className="text-primary-foreground/80 text-sm mb-6">{remaining} of {MAX_TASK_VIEWS} tries left today</p>
+              <p className="text-primary-foreground/80 text-sm mb-6">{Math.max(0, remaining)} of {MAX_TASK_ATTEMPTS} tries left</p>
 
               {limitReached ? (
                 <div className="bg-primary-foreground/20 rounded-2xl px-8 py-4 flex flex-col items-center gap-2">
                   <AlertCircle size={28} className="text-primary-foreground" />
-                  <p className="text-primary-foreground font-bold text-lg">Limit Reached — Try Tomorrow</p>
+                  <p className="text-primary-foreground font-bold text-lg">Limit Reached — Ask your teacher</p>
                 </div>
               ) : (
                 <button
@@ -189,7 +228,6 @@ const StudentPage = () => {
     );
   }
 
-  // Name selection list
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-secondary to-primary/5 flex flex-col items-center justify-center px-6 py-12">
       <div className="flex items-center gap-2 mb-2">
@@ -218,17 +256,17 @@ const StudentPage = () => {
           {students.map((s) => {
             const studentHasTask = !!(s.assigned_task || globalTaskId);
             return (
-            <button
-              key={s.id}
-              onClick={() => studentHasTask && setSelectedStudent(s)}
-              disabled={!studentHasTask}
-              className="bg-card rounded-2xl border-2 border-border p-6 flex flex-col items-center gap-3 shadow-sm hover:shadow-lg hover:border-primary/40 hover:scale-[1.03] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center text-2xl font-bold text-primary">
-                {s.name.charAt(0).toUpperCase()}
-              </div>
-              <span className="font-bold text-foreground text-base">{s.name}</span>
-            </button>
+              <button
+                key={s.id}
+                onClick={() => studentHasTask && setSelectedStudent(s)}
+                disabled={!studentHasTask}
+                className="bg-card rounded-2xl border-2 border-border p-6 flex flex-col items-center gap-3 shadow-sm hover:shadow-lg hover:border-primary/40 hover:scale-[1.03] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center text-2xl font-bold text-primary">
+                  {s.name.charAt(0).toUpperCase()}
+                </div>
+                <span className="font-bold text-foreground text-base">{s.name}</span>
+              </button>
             );
           })}
         </div>
