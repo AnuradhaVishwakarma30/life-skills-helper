@@ -18,9 +18,9 @@ export const sortingConfigs: Record<string, SortingConfig> = {
       { id: 'navy-sweater', label: 'Navy Sweater', iconName: 'Shirt', correctZone: 1, iconColor: 'text-blue-900', imageUrl: 'https://i.postimg.cc/DfY1KJTk/images-(1).jpg' },
     ],
   },
-  'dress sorting': {
-    taskId: 'dress sorting',
-    taskName: 'Dress Sorting',
+  'getting-dressed': {
+    taskId: 'getting-dressed',
+    taskName: 'Getting Dressed',
     colorBg: 'bg-orange-500',
     colorText: 'text-orange-600',
     voiceIntro: 'Look at the weather and pick the right clothes!',
@@ -35,9 +35,9 @@ export const sortingConfigs: Record<string, SortingConfig> = {
       { id: 'shorts', label: 'Shorts', iconName: 'Shirt', correctZone: 1, iconColor: 'text-sky-400', imageUrl: 'https://i.postimg.cc/TY4LBZnv/shorts.jpg' },
     ],
   },
-  'grocery-sorting': {
-    taskId: 'grocery-sorting',
-    taskName: 'Grocery Sorting',
+  'grocery-shopping': {
+    taskId: 'grocery-shopping',
+    taskName: 'Grocery Shopping',
     colorBg: 'bg-pink-500',
     colorText: 'text-pink-600',
     voiceIntro: 'Let us put the groceries in the right place! Cold items go in the fridge, dry items go on the shelf.',
@@ -52,4 +52,6 @@ export const sortingConfigs: Record<string, SortingConfig> = {
       { id: 'cookies', label: 'Cookies', iconName: 'Cookie', correctZone: 1, iconColor: 'text-amber-700', imageUrl: 'https://i.postimg.cc/SNRRkDGd/biscuit.jpg' },
     ],
   },
+};
+
 };
