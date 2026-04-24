@@ -157,25 +157,21 @@ export const gifStepConfigs: Record<string, GifStepGameConfig> = {
         title: 'Sit Up Straight',
         voice: 'Sit straight at the table with both feet on the floor.',
         buttonLabel: '🪑 I am sitting properly!',
-        mediaUrl:'',
       },
       {
         title: 'Use a Napkin',
         voice: 'Place a napkin on your lap and use it to wipe your mouth.',
         buttonLabel: '🧻 Napkin ready!',
-        mediaUrl:'',  
       },
       {
         title: 'Chew With Mouth Closed',
         voice: 'Chew your food with your mouth closed. No talking with food in your mouth!',
         buttonLabel: '😋 Chewing nicely!',
-        mediaUrl:'',    
       },
       {
         title: 'Clean Up Your Plate',
         voice: 'When you finish, take your plate to the sink.',
         buttonLabel: '🧽 Plate cleaned up!',
-        mediaUrl:'',   
       },
     ],
   },
@@ -193,17 +189,16 @@ export const gifStepConfigs: Record<string, GifStepGameConfig> = {
         title: 'Pick Your Clothes',
         voice: 'Choose the clothes you want to wear today.',
         buttonLabel: '👚 Clothes picked!',
-        mediaUrl:'',      },
+      },
       {
         title: 'Put On Your T-Shirt',
         voice: 'Put your t-shirt on. Head first, then arms.',
         buttonLabel: '👕 T-shirt on!',
-        mediaUrl:'',      },
+      },
       {
         title: 'Put On Your Pants',
         voice: 'Now slide your pants on, one leg at a time.',
         buttonLabel: '👖 Pants on!',
-        mediaUrl:'',
       },
     ],
   },
@@ -221,19 +216,18 @@ export const gifStepConfigs: Record<string, GifStepGameConfig> = {
         title: 'Check the Room',
         voice: 'Before leaving, look around the room.',
         buttonLabel: '👀 Room checked!',
-        mediaUrl:'',
       },
       {
         title: 'Switch Off the Light',
         voice: 'Press the switch to turn off the lights.',
         buttonLabel: '💡 Light off!',
-        mediaUrl:'',
+
       },
       {
         title: 'Switch Off the Fan',
         voice: 'Now turn off the fan to save more electricity.',
         buttonLabel: '🌀 Fan off!',
-        mediaUrl:'',
+        
     ],
   },
 };
