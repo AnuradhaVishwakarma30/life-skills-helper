@@ -240,6 +240,7 @@ export const gifStepConfigs: Record<string, GifStepGameConfig> = {
         voice: 'Now turn off the fan to save more electricity.',
         buttonLabel: '🌀 Fan off!',
         mediaUrl: 'https://i.postimg.cc/RhLkBXyQ/download.png',
+      },
     ],
   },
 };
